@@ -1,7 +1,7 @@
 # Ark Rust - Crypto
 
 <p align="center">
-    <img src="https://github.com/ArkEcosystem/rust-crypto/blob/master/banner.png" />
+    <img src="./banner.png" />
 </p>
 
 > A simple Rust cryptography implementation for the Ark blockchain.
@@ -12,7 +12,7 @@
 
 ## Documentation
 
-You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/v1.0/docs/cryptos-rust).
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/developers/sdk/cryptography/rust.html).
 
 ## Security
 
@@ -21,7 +21,7 @@ If you discover a security vulnerability within this package, please send an e-m
 ## Credits
 
 - [Juan A. Martín](https://github.com/j-a-m-l)
-- [All Contributors](../../../../contributors)
+- [All Contributors](../../contributors)
 
 ## License
 
