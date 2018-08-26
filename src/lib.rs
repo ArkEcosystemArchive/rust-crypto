@@ -3,3 +3,4 @@ extern crate failure;
 extern crate serde_json;
 
 pub mod networks;
+pub mod enums;
