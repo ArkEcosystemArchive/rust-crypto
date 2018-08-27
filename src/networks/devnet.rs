@@ -4,15 +4,15 @@ pub struct Devnet;
 
 impl Network for Devnet {
 
-    fn epoch() -> &'static str {
+    fn epoch(&self) -> &'static str {
         "2017-03-21T13:00:00.000Z"
     }
 
-    fn version() -> u16 {
+    fn version(&self) -> u16 {
         0x1e
     }
 
-    fn wif() -> u32 {
+    fn wif(&self) -> u32 {
         170
     }
 
