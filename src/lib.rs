@@ -6,7 +6,8 @@ extern crate serde_json;
 extern crate lazy_static;
 extern crate chrono;
 extern crate hex;
-pub mod networks;
+extern crate bs58;
+
 pub mod enums;
 pub mod configuration;
 pub mod utils;
