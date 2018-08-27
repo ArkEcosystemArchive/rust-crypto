@@ -1,5 +1,6 @@
 use secp256k1::{Secp256k1, Error, SecretKey};
 use sha2::{Digest, Sha256};
+use hex;
 
 pub type PrivateKey = SecretKey;
 
@@ -10,7 +11,8 @@ pub fn from_passphrase(passphrase: &str) -> Result<PrivateKey, Error> {
 }
 
 pub fn from_hex(private_key: &str) -> Result<PrivateKey, Error> {
-    PrivateKey::from_slice(&Secp256k1::new(), private_key.as_bytes())
+    // TODO: fix unwrap
+    PrivateKey::from_slice(&Secp256k1::new(), hex::decode(private_key).unwrap().as_slice())
 }
 
 #[cfg(test)]

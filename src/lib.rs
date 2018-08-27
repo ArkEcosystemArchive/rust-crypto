@@ -5,7 +5,7 @@ extern crate serde_json;
 #[macro_use]
 extern crate lazy_static;
 extern crate chrono;
-
+extern crate hex;
 pub mod networks;
 pub mod enums;
 pub mod configuration;
