@@ -15,7 +15,7 @@ impl Network {
         }
     }
 
-    pub fn version(&self) -> u16 {
+    pub fn version(&self) -> u8 {
         match *self {
             Network::Mainnet => 0x17,
             Network::Devnet => 0x1e,
@@ -23,7 +23,7 @@ impl Network {
         }
     }
 
-    pub fn wif(&self) -> u32 {
+    pub fn wif(&self) -> u8 {
         match *self {
             Network::Mainnet => 170,
             Network::Devnet => 170,

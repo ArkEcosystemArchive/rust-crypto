@@ -5,9 +5,7 @@ use hex;
 pub type PrivateKey = SecretKey;
 
 pub fn from_passphrase(passphrase: &str) -> Result<PrivateKey, Error> {
-    let mut hasher = Sha256::default();
-    hasher.input(passphrase.as_bytes());
-    PrivateKey::from_slice(&Secp256k1::new(), &hasher.result()[..])
+    PrivateKey::from_slice(&Secp256k1::new(), &Sha256::digest_str(passphrase)[..])
 }
 
 pub fn from_hex(private_key: &str) -> Result<PrivateKey, Error> {
