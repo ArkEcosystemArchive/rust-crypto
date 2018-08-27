@@ -1,25 +1,32 @@
 use std::sync::Mutex;
-use std::boxed::Box;
-use networks::{Network, mainnet::Mainnet};
+use networks::Network;
 
 lazy_static! {
-    static ref NETWORK: Mutex<Box<Network + Send>> = {
-        Mutex::new(Box::new(Mainnet {}))
+    static ref NETWORK: Mutex<Network> = {
+        Mutex::new(Network::Mainnet)
     };
 }
 
-pub fn set<T: Network + Send + 'static>(network: T) {
-    *NETWORK.lock().unwrap() = Box::new(network);
+pub fn set(network: Network) {
+    *NETWORK.lock().unwrap() = network;
 }
 
-pub fn epoch() -> &'static str {
-    NETWORK.lock().unwrap().epoch()
+pub fn get() -> Network {
+    (*NETWORK.lock().unwrap()).clone()
 }
 
-pub fn version() -> u16 {
-    NETWORK.lock().unwrap().version()
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-pub fn wif() -> u32 {
-    NETWORK.lock().unwrap().wif()
+    #[test]
+    fn get_network() {
+        assert_eq!(get(), Network::Mainnet);
+    }
+
+    #[test]
+    fn set_network() {
+        set(Network::Devnet);
+        assert_eq!(get(), Network::Devnet);
+    }
 }
