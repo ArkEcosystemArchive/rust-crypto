@@ -1,23 +1,15 @@
 use sha2::{Digest, Sha256};
-use bs58;
-use std::str;
+use bitcoin::util::base58;
 
 use super::super::configuration;
 
 pub fn from_passphrase(passphrase: &str) -> String {
+    let mut bytes = vec![];
+    bytes.push(configuration::network::get().wif());
+    bytes.extend_from_slice(&Sha256::digest_str(passphrase));
+    bytes.push(0x01);
 
-    let output = Sha256::digest_str(passphrase);
-
-    let wif = configuration::network::get().wif();
-    let mut seed = vec![wif];
-    seed.extend_from_slice(&output);
-    seed.push(0x01);
-
-    // https://en.bitcoin.it/wiki/Base58Check_encoding
-    let checked = Sha256::digest(Sha256::digest(seed.as_slice()).as_slice());
-    seed.extend_from_slice(&checked[0..4]);
-
-    bs58::encode(seed).into_string()
+    base58::check_encode_slice(&bytes)
 }
 
 #[cfg(test)]

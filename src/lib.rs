@@ -6,7 +6,9 @@ extern crate serde_json;
 extern crate lazy_static;
 extern crate chrono;
 extern crate hex;
-extern crate bs58;
+extern crate ripemd160;
+extern crate bitcoin;
+extern crate byteorder;
 
 pub mod enums;
 pub mod configuration;
