@@ -27,3 +27,20 @@ pub fn get(transaction_type: Types) -> u32 {
 pub fn set(transaction_type: Types, value: u32) {
     FEES.lock().unwrap().insert(transaction_type, value);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_fee() {
+        assert_eq!(get(Types::Vote), fees::VOTE);
+    }
+
+    #[test]
+    fn set_fee() {
+        set(Types::Vote, 0);
+        assert_eq!(get(Types::Vote), 0);
+    }
+
+}
