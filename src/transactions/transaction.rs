@@ -13,6 +13,7 @@ pub struct Transaction {
     pub type_id: Types,
     pub version: u8,
     // assets
+    pub asset: Asset,
     pub timelock_type: u32,
     pub signatures: Vec<String>,
     pub id: String,
@@ -28,6 +29,31 @@ pub struct Transaction {
     pub amount: u64,
     pub fee: u64,
     pub timelock: u64,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Asset {
+    signature: SecondSignatureRegistrationAsset,
+    delegate: DelegateRegistrationAsset,
+    votes: Vec<String>,
+    multisignature: MultiSignatureRegistrationAsset,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct SecondSignatureRegistrationAsset {
+    public_key: String,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct DelegateRegistrationAsset {
+    username: String,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct MultiSignatureRegistrationAsset {
+    min: u8,
+    keysgroup: Vec<String>,
+    lifetime: u8,
 }
 
 impl Transaction {
@@ -77,10 +103,20 @@ impl Transaction {
 
         // Payload
         let payload: Vec<u8> = match self.type_id {
-            Types::SecondSignatureRegistration => vec![],
-            Types::DelegateRegistration => vec![],
-            Types::Vote => vec![],
-            Types::MultiSignatureRegistration => vec![],
+            Types::SecondSignatureRegistration => {
+                hex::decode(&self.asset.signature.public_key).unwrap()
+            }
+            Types::DelegateRegistration => self.asset.delegate.username.as_bytes().to_vec(),
+            Types::Vote => self.asset.votes.join("").as_bytes().to_vec(),
+            Types::MultiSignatureRegistration => {
+                let ms_asset = &self.asset.multisignature;
+                let mut buffer = vec![];
+                buffer.push(ms_asset.min);
+                buffer.push(ms_asset.lifetime);
+                buffer.extend_from_slice(ms_asset.keysgroup.join("").as_bytes());
+
+                buffer
+            }
 
             _ => vec![],
         };
@@ -115,7 +151,7 @@ mod tests {
     #[test]
     fn test_to_bytes() {
         let mut transaction = Transaction::default();
-        transaction.type_id = 1;
+        transaction.type_id = Types::Vote;
         transaction.timestamp = 39999;
         println!("{:?}", transaction.to_bytes(true, true));
     }
