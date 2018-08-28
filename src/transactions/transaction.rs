@@ -37,27 +37,27 @@ pub struct Transaction {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Asset {
-    signature: SecondSignatureRegistrationAsset,
-    delegate: DelegateRegistrationAsset,
-    votes: Vec<String>,
-    multisignature: MultiSignatureRegistrationAsset,
+    pub signature: SecondSignatureRegistrationAsset,
+    pub delegate: DelegateRegistrationAsset,
+    pub votes: Vec<String>,
+    pub multisignature: MultiSignatureRegistrationAsset,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct SecondSignatureRegistrationAsset {
-    public_key: String,
+    pub public_key: String,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct DelegateRegistrationAsset {
-    username: String,
+    pub username: String,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct MultiSignatureRegistrationAsset {
-    min: u8,
-    keysgroup: Vec<String>,
-    lifetime: u8,
+    pub min: u8,
+    pub keysgroup: Vec<String>,
+    pub lifetime: u8,
 }
 
 impl Transaction {
