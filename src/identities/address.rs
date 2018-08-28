@@ -1,5 +1,5 @@
-use secp256k1::{Secp256k1, Error, PublicKey};
-use ripemd160::{Ripemd160, Digest};
+use secp256k1::{Error, PublicKey, Secp256k1};
+use ripemd160::{Digest, Ripemd160};
 use bitcoin::util::base58;
 use hex;
 
@@ -48,13 +48,16 @@ mod test {
     #[test]
     fn address_from_passphrase() {
         let private_key = from_passphrase("this is a top secret passphrase");
-        assert_eq!(private_key.unwrap().to_string(), "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib");
+        assert_eq!(
+            private_key.unwrap().to_string(),
+            "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib"
+        );
     }
 
     #[test]
     fn private_key_from_hex() {
-    //    let private_key = from_hex("d8839c2432bfd0a67ef10a804ba991eabba19f154a3d707917681d45822a5712");
-//        assert!(private_key.is_ok());
-//        assert_eq!(private_key.unwrap().to_string(), "d8839c2432bfd0a67ef10a804ba991eabba19f154a3d707917681d45822a5712");
+        //    let private_key = from_hex("d8839c2432bfd0a67ef10a804ba991eabba19f154a3d707917681d45822a5712");
+        //        assert!(private_key.is_ok());
+        //        assert_eq!(private_key.unwrap().to_string(), "d8839c2432bfd0a67ef10a804ba991eabba19f154a3d707917681d45822a5712");
     }
 }

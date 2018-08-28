@@ -21,7 +21,11 @@ lazy_static! {
 }
 
 pub fn get(transaction_type: Types) -> u32 {
-    FEES.lock().unwrap().get(&transaction_type).cloned().unwrap()
+    FEES.lock()
+        .unwrap()
+        .get(&transaction_type)
+        .cloned()
+        .unwrap()
 }
 
 pub fn set(transaction_type: Types, value: u32) {

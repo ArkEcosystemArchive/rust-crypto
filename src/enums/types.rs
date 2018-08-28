@@ -8,5 +8,5 @@ pub enum Types {
     Ipfs = 5,
     TimelockTransfer = 6,
     MultiPayment = 7,
-    DelegateResignation = 8
+    DelegateResignation = 8,
 }

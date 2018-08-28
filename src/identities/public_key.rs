@@ -1,4 +1,4 @@
-use secp256k1::{Secp256k1, Error, PublicKey};
+use secp256k1::{Error, PublicKey, Secp256k1};
 use hex;
 
 use super::private_key;
@@ -10,7 +10,10 @@ pub fn from_passphrase(passphrase: &str) -> Result<PublicKey, Error> {
 
 pub fn from_hex(public_key: &str) -> Result<PublicKey, Error> {
     // TODO: fix unwrap
-    PublicKey::from_slice(&Secp256k1::new(), hex::decode(public_key).unwrap().as_slice())
+    PublicKey::from_slice(
+        &Secp256k1::new(),
+        hex::decode(public_key).unwrap().as_slice(),
+    )
 }
 
 #[cfg(test)]
@@ -21,13 +24,20 @@ mod test {
     fn public_key_from_passphrase() {
         let public_key = from_passphrase("this is a top secret passphrase");
         assert!(public_key.is_ok());
-        assert_eq!(public_key.unwrap().to_string(), "034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192");
+        assert_eq!(
+            public_key.unwrap().to_string(),
+            "034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192"
+        );
     }
 
     #[test]
     fn public_key_from_hex() {
-        let public_key = from_hex("034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192");
+        let public_key =
+            from_hex("034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192");
         assert!(public_key.is_ok());
-        assert_eq!(public_key.unwrap().to_string(), "034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192");
+        assert_eq!(
+            public_key.unwrap().to_string(),
+            "034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192"
+        );
     }
 }

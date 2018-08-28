@@ -18,6 +18,9 @@ mod test {
 
     #[test]
     fn wif_from_passphrase() {
-        assert_eq!(from_passphrase("this is a top secret passphrase"), "SGq4xLgZKCGxs7bjmwnBrWcT4C1ADFEermj846KC97FSv1WFD1dA");
+        assert_eq!(
+            from_passphrase("this is a top secret passphrase"),
+            "SGq4xLgZKCGxs7bjmwnBrWcT4C1ADFEermj846KC97FSv1WFD1dA"
+        );
     }
 }
