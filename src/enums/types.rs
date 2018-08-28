@@ -1,4 +1,4 @@
-#[derive(PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
 pub enum Types {
     Transfer = 0,
     SecondSignatureRegistration = 1,
@@ -9,4 +9,10 @@ pub enum Types {
     TimelockTransfer = 6,
     MultiPayment = 7,
     DelegateResignation = 8,
+}
+
+impl Default for Types {
+    fn default() -> Types {
+        Types::Transfer
+    }
 }

@@ -18,3 +18,4 @@ pub mod configuration;
 pub mod utils;
 pub mod identities;
 pub mod networks;
+pub mod transactions;
