@@ -1,9 +1,12 @@
 use hex;
 use byteorder::{LittleEndian, WriteBytesExt};
 use bitcoin::util::base58;
+use sha2::{Digest, Sha256};
 use std::iter;
 
 use enums::types::Types;
+use identities::{public_key, private_key};
+use utils::message::Message;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -57,8 +60,22 @@ pub struct MultiSignatureRegistrationAsset {
 }
 
 impl Transaction {
+
     pub fn get_id(&self) -> String {
-        self.id.to_owned()
+        let bytes = self.to_bytes(false, false);
+        hex::encode(Sha256::digest(&bytes))
+    }
+
+    // TODO: unwrap
+    pub fn sign(&mut self, passphrase: &str) -> &Self {
+        let private_key = private_key::from_passphrase(passphrase).unwrap();
+        let public_key = public_key::from_private_key(&private_key);
+        self.sender_public_key = hex::encode(public_key.to_string());
+
+        let message = &hex::encode(Sha256::digest(&self.to_bytes(true, true)));
+        self.signature = Message::sign(message, passphrase).signature;
+
+        self
     }
 
     pub fn to_bytes(&self, skip_signature: bool, skip_second_signature: bool) -> Vec<u8> {

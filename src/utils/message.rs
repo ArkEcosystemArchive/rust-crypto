@@ -2,7 +2,7 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use hex;
 use secp256k1;
-use secp256k1::{PublicKey, Secp256k1, Signature};
+use secp256k1::{Secp256k1, Signature};
 use serde_json;
 
 use super::super::identities::{private_key, public_key};
@@ -27,10 +27,11 @@ impl Message {
     // TODO: unwrap
     pub fn sign(message: &str, passphrase: &str) -> Message {
         let key = private_key::from_passphrase(passphrase).unwrap();
-        let secp = Secp256k1::new();
-        let public_key = PublicKey::from_secret_key(&secp, &key);
+        let public_key = public_key::from_private_key(&key);
         let hash = Sha256::digest_str(message);
         let msg = secp256k1::Message::from_slice(&hash).unwrap();
+
+        let secp = Secp256k1::new();
         let sig = secp.sign(&msg, &key);
 
         Message {

@@ -1,8 +1,9 @@
-use secp256k1::{Error, PublicKey, Secp256k1};
+use secp256k1::{Error, PublicKey};
 use ripemd160::{Digest, Ripemd160};
 use bitcoin::util::base58;
 use hex;
 
+use super::public_key;
 use super::private_key;
 use super::private_key::PrivateKey;
 use super::super::configuration;
@@ -13,10 +14,7 @@ pub fn from_passphrase(passphrase: &str) -> Result<String, Error> {
 }
 
 pub fn from_private_key(private_key: &PrivateKey) -> String {
-    let public_key = PublicKey::from_secret_key(&Secp256k1::new(), private_key);
-    println!("{:?}", private_key.to_string());
-    println!("{:?}", public_key.to_string());
-
+    let public_key = public_key::from_private_key(private_key);
     from_public_key(&public_key)
 }
 

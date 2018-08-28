@@ -16,6 +16,10 @@ pub fn from_hex(public_key: &str) -> Result<PublicKey, Error> {
     )
 }
 
+pub fn from_private_key(private_key: &private_key::PrivateKey) -> PublicKey {
+    PublicKey::from_secret_key(&Secp256k1::new(), private_key)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
