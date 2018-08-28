@@ -77,6 +77,13 @@ impl Transaction {
         self
     }
 
+    pub fn second_sign(&mut self, passphrase: &str) -> &Self {
+        let message = &hex::encode(Sha256::digest(&self.to_bytes(false, true)));
+        self.sign_signature = Message::sign(message, passphrase).signature;
+
+        self
+    }
+
     pub fn to_bytes(&self, skip_signature: bool, skip_second_signature: bool) -> Vec<u8> {
         let mut buffer = vec![];
 
