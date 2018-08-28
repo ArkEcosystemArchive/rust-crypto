@@ -3,9 +3,11 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use bitcoin::util::base58;
 use sha2::{Digest, Sha256};
 use std::iter;
+use secp256k1;
+use secp256k1::{Secp256k1, Signature};
 
 use enums::types::Types;
-use identities::{public_key, private_key};
+use identities::{private_key, public_key};
 use utils::message::Message;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -59,7 +61,6 @@ pub struct MultiSignatureRegistrationAsset {
 }
 
 impl Transaction {
-
     pub fn get_id(&self) -> String {
         let bytes = self.to_bytes(false, false);
         hex::encode(Sha256::digest(&bytes))
@@ -82,6 +83,14 @@ impl Transaction {
         self.sign_signature = Message::sign(message, passphrase).signature;
 
         self
+    }
+
+    pub fn verify(&self) -> bool {
+        self.internal_verify(&self.signature, &self.to_bytes(true, true))
+    }
+
+    pub fn second_verify(&self) -> bool {
+        self.internal_verify(&self.sign_signature, &self.to_bytes(false, true))
     }
 
     pub fn to_bytes(&self, skip_signature: bool, skip_second_signature: bool) -> Vec<u8> {
@@ -163,6 +172,17 @@ impl Transaction {
 
         buffer
     }
+
+    fn internal_verify(&self, signature: &str, bytes: &[u8]) -> bool {
+        let hash = Sha256::digest(&bytes);
+        let msg = secp256k1::Message::from_slice(&hash).unwrap();
+
+        let secp = Secp256k1::new();
+        let sig = Signature::from_der(&secp, signature.as_bytes()).unwrap();
+        let pk = public_key::from_hex(&self.sender_public_key).unwrap();
+
+        secp.verify(&msg, &sig, &pk).is_ok()
+    }
 }
 
 #[cfg(test)]
@@ -175,7 +195,17 @@ mod tests {
         let mut transaction = Transaction::default();
         transaction.type_id = Types::Vote;
         transaction.timestamp = 39999;
+        transaction.sign("this is a top secret passphrase");
+
         println!("{:?}", transaction.to_bytes(true, true));
+    }
+
+    #[test]
+    fn test_aaaa() {
+        let mut transaction = Transaction::default();
+        transaction.sign("this is a top secret passphrase");
+
+        println!("{:?}", transaction);
     }
 
 }
