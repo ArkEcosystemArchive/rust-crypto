@@ -11,8 +11,8 @@ pub fn deserialize(serialized: &str) -> Transaction {
     let mut bytes = Cursor::new(decoded.as_slice());
     let mut transaction = Transaction::default();
 
-    let asset_offset = deserialize_header(&mut bytes, &mut transaction);
-    deserialize_type(&mut bytes, &mut transaction, asset_offset);
+    let mut asset_offset = deserialize_header(&mut bytes, &mut transaction);
+    deserialize_type(&mut bytes, &mut transaction, &serialized, &mut asset_offset);
 
     transaction
 }
@@ -40,21 +40,29 @@ fn deserialize_header(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) 
     50 * 2 + vendor_field_length * 2
 }
 
-fn deserialize_type(bytes: &mut Cursor<&[u8]>, mut transaction: &mut Transaction, asset_offset: u8) {
-
+fn deserialize_type(
+    bytes: &mut Cursor<&[u8]>,
+    mut transaction: &mut Transaction,
+    serialized: &str,
+    mut asset_offset: &mut u8,
+) {
     let type_id = transaction.type_id.clone();
     match type_id {
         Types::Transfer => deserialize_vote(bytes, &mut transaction),
-        Types::SecondSignatureRegistration => (),
+        Types::SecondSignatureRegistration => deserialize_second_signature_registration(
+            bytes,
+            &mut transaction,
+            serialized,
+            &mut asset_offset,
+        ),
         Types::DelegateRegistration => (),
         Types::Vote => (),
         Types::MultiSignatureRegistration => (),
         Types::Ipfs => (),
         Types::TimelockTransfer => (),
         Types::MultiPayment => (),
-        Types::DelegateResignation => ()
+        Types::DelegateResignation => (),
     }
-
 }
 
 fn deserialize_vote(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) {
@@ -64,4 +72,21 @@ fn deserialize_vote(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) {
     let mut recipient_id_buf = [0; 21];
     bytes.read(&mut recipient_id_buf).unwrap();
     transaction.recipient_id = base58::check_encode_slice(&recipient_id_buf);
+}
+
+fn deserialize_second_signature_registration(
+    bytes: &mut Cursor<&[u8]>,
+    transaction: &mut Transaction,
+    serialized: &str,
+    asset_offset: &mut u8,
+) {
+    transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
+    transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
+    transaction.asset.signature.public_key = serialized
+        .chars()
+        .skip(*asset_offset as usize)
+        .take(66)
+        .collect();
+
+    *asset_offset += 66;
 }
