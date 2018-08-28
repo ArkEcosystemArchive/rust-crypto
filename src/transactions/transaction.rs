@@ -15,7 +15,6 @@ pub struct Transaction {
     pub network: u8,
     pub type_id: Types,
     pub version: u8,
-    // assets
     pub asset: Asset,
     pub timelock_type: u32,
     pub signatures: Vec<String>,
@@ -70,7 +69,7 @@ impl Transaction {
     pub fn sign(&mut self, passphrase: &str) -> &Self {
         let private_key = private_key::from_passphrase(passphrase).unwrap();
         let public_key = public_key::from_private_key(&private_key);
-        self.sender_public_key = hex::encode(public_key.to_string());
+        self.sender_public_key = hex::encode(public_key.serialize().to_vec());
 
         let message = &hex::encode(Sha256::digest(&self.to_bytes(true, true)));
         self.signature = Message::sign(message, passphrase).signature;
@@ -84,8 +83,7 @@ impl Transaction {
         buffer.write_u8(self.type_id.clone() as u8).unwrap();
         buffer.write_u32::<LittleEndian>(self.timestamp).unwrap();
 
-        let sender_public_key = hex::decode(&self.sender_public_key).unwrap();
-        buffer.extend_from_slice(&sender_public_key);
+        buffer.extend_from_slice(self.sender_public_key.as_bytes());
 
         let recipient_id = if !self.recipient_id.is_empty() {
             base58::from_check(&self.recipient_id).unwrap()

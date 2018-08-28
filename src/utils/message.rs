@@ -35,7 +35,7 @@ impl Message {
         let sig = secp.sign(&msg, &key);
 
         Message {
-            public_key: hex::encode(public_key.to_string()),
+            public_key: hex::encode(&public_key.serialize()[..]),
             signature: hex::encode(sig.serialize_der(&secp)),
             message: message.to_owned(),
         }
