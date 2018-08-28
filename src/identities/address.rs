@@ -42,14 +42,18 @@ pub fn validate(address: &str) -> bool {
 #[cfg(test)]
 mod test {
     use super::*;
+    use networks::Network;
 
     #[test]
     fn address_from_passphrase() {
+        configuration::network::set(Network::Devnet);
         let private_key = from_passphrase("this is a top secret passphrase");
         assert_eq!(
             private_key.unwrap().to_string(),
             "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib"
         );
+
+        configuration::network::set(Network::Mainnet);
     }
 
     #[test]

@@ -28,5 +28,6 @@ mod tests {
     fn set_network() {
         set(Network::Devnet);
         assert_eq!(get(), Network::Devnet);
+        set(Network::Mainnet);
     }
 }
