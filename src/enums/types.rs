@@ -1,3 +1,5 @@
+use std::mem::transmute;
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
 pub enum Types {
     Transfer = 0,
@@ -14,5 +16,12 @@ pub enum Types {
 impl Default for Types {
     fn default() -> Types {
         Types::Transfer
+    }
+}
+
+impl From<u8> for Types {
+    fn from(t: u8) -> Types {
+        assert!(Types::Transfer as u8 <= t && t <= Types::DelegateResignation as u8);
+        unsafe { transmute(t) }
     }
 }
