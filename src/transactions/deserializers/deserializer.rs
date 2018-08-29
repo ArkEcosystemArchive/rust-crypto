@@ -6,6 +6,8 @@ use bitcoin::util::base58;
 use std::io::Cursor;
 use std::io::prelude::*;
 
+use utils;
+
 pub fn deserialize(serialized: &str) -> Transaction {
     let decoded = hex::decode(serialized).unwrap();
     let mut bytes = Cursor::new(decoded.as_slice());
@@ -109,8 +111,7 @@ fn deserialize_delegate_registration(
         .take((username_length as usize) * 2)
         .collect();
 
-    transaction.asset.delegate.username =
-        String::from_utf8_lossy(&hex::decode(username).unwrap()).to_string();
+    transaction.asset.delegate.username = utils::str_from_hex(&username).unwrap();
 
     *asset_offset += (username_length + 1) * 2;
 }
