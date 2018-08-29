@@ -55,7 +55,12 @@ fn deserialize_type(
             serialized,
             &mut asset_offset,
         ),
-        Types::DelegateRegistration => (),
+        Types::DelegateRegistration => deserialize_delegate_registration(
+            bytes,
+            &mut transaction,
+            serialized,
+            &mut asset_offset,
+        ),
         Types::Vote => (),
         Types::MultiSignatureRegistration => (),
         Types::Ipfs => (),
@@ -89,4 +94,23 @@ fn deserialize_second_signature_registration(
         .collect();
 
     *asset_offset += 66;
+}
+
+fn deserialize_delegate_registration(
+    bytes: &mut Cursor<&[u8]>,
+    transaction: &mut Transaction,
+    serialized: &str,
+    asset_offset: &mut u8,
+) {
+    let username_length = bytes.read_u8().unwrap();
+    let username: String = serialized
+        .chars()
+        .skip((*asset_offset as usize) + 2)
+        .take((username_length as usize) * 2)
+        .collect();
+
+    transaction.asset.delegate.username =
+        String::from_utf8_lossy(&hex::decode(username).unwrap()).to_string();
+
+    *asset_offset += (username_length + 1) * 2;
 }
