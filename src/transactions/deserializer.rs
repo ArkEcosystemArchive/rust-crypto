@@ -6,7 +6,7 @@ use std::io::prelude::*;
 
 use utils;
 use enums::types::Types;
-use transactions::transaction::Transaction;
+use transactions::transaction::{Asset, Transaction};
 use identities::{address, public_key};
 
 pub fn deserialize(serialized: &str) -> Transaction {
@@ -99,8 +99,9 @@ fn deserialize_second_signature_registration(
 ) {
     transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
     transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
-    transaction.asset.signature.public_key =
-        serialized.chars().skip(*asset_offset).take(66).collect();
+    transaction.asset = Asset::Signature {
+        public_key: serialized.chars().skip(*asset_offset).take(66).collect()
+    };
 
     *asset_offset += 66;
 }
@@ -118,8 +119,7 @@ fn deserialize_delegate_registration(
         .take(username_length * 2)
         .collect();
 
-    transaction.asset.delegate.username = utils::str_from_hex(&username).unwrap();
-
+    transaction.asset = Asset::Delegate { username: utils::str_from_hex(&username).unwrap() };
     *asset_offset += (username_length + 1) * 2;
 }
 
@@ -133,6 +133,7 @@ fn deserialize_vote(
 
     *asset_offset += 2;
 
+    let mut votes = Vec::with_capacity(vote_length);
     for i in 0..vote_length {
         let index_start = *asset_offset + (i * 2 * 34);
         let index_end = 2 * 34 - 2;
@@ -152,9 +153,10 @@ fn deserialize_vote(
             vote.insert_str(0, "-");
         }
 
-        transaction.asset.votes.push(vote);
+        votes.push(vote);
     }
 
+    transaction.asset = Asset::Votes { votes };
     *asset_offset += 2 + (vote_length * 34 * 2);
 }
 
@@ -167,19 +169,19 @@ fn deserialize_multi_signature_registration(
     let number_of_signatures = bytes.read_u8().unwrap() as usize;
     let lifetime = bytes.read_u8().unwrap();
 
+
+    let mut keysgroup = Vec::with_capacity(number_of_signatures);
     for _ in 0..number_of_signatures {
         let mut public_key_buf = [0; 33];
         bytes.read(&mut public_key_buf).unwrap();
-
-        transaction
-            .asset
-            .multisignature
-            .keysgroup
-            .push(hex::encode(public_key_buf.to_vec()));
+        keysgroup.push(hex::encode(public_key_buf.to_vec()))
     }
 
-    transaction.asset.multisignature.min = min;
-    transaction.asset.multisignature.lifetime = lifetime;
+    transaction.asset = Asset::MultiSignatureRegistration {
+        keysgroup,
+        min,
+        lifetime
+    };
 
     *asset_offset += 6 + number_of_signatures * 66;
 }
@@ -271,9 +273,14 @@ fn handle_version_one(transaction: &mut Transaction) {
             transaction.recipient_id = address::from_public_key(&public_key);
         }
         Types::MultiSignatureRegistration => {
-            let mut keysgroup = transaction.asset.multisignature.keysgroup.as_mut_slice();
-            for key in keysgroup {
-                *key = String::from("+") + key;
+            match &mut transaction.asset {
+                &mut Asset::MultiSignatureRegistration { min: _, lifetime: _, ref mut keysgroup } => {
+                    let mut keysgroup = keysgroup.as_mut_slice();
+                    for key in keysgroup {
+                        *key = String::from("+") + key;
+                    }
+                },
+                _ => ()
             }
         }
         _ => (),

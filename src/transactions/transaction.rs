@@ -13,51 +13,66 @@ use utils::message::Message;
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Transaction {
+    #[serde(skip)]
     pub header: u8,
+    #[serde(skip)]
     pub network: u8,
+    #[serde(rename = "type")]
     pub type_id: Types,
+    #[serde(skip)]
     pub version: u8,
     pub asset: Asset,
+    #[serde(skip)]
     pub timelock_type: u32,
+    #[serde(skip)]
     pub signatures: Vec<String>,
     pub id: String,
     pub recipient_id: String,
+    #[serde(skip)]
     pub second_signature: String,
     pub sender_public_key: String,
     pub signature: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub sign_signature: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub vendor_field: String,
+    #[serde(skip)]
     pub vendor_field_hex: String,
+    #[serde(skip)]
     pub expiration: u32,
     pub timestamp: u32,
     pub amount: u64,
     pub fee: u64,
+    #[serde(skip)]
     pub timelock: u64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct Asset {
-    pub signature: SecondSignatureRegistrationAsset,
-    pub delegate: DelegateRegistrationAsset,
-    pub votes: Vec<String>,
-    pub multisignature: MultiSignatureRegistrationAsset,
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all="lowercase")]
+pub enum Asset {
+    #[serde(skip)]
+    None,
+    Signature {
+        public_key: String
+    },
+    Delegate {
+        username: String
+    },
+    Votes {
+        votes: Vec<String>
+    },
+    #[serde(rename="multisignature")]
+    MultiSignatureRegistration {
+        min: u8,
+        keysgroup: Vec<String>,
+        lifetime: u8,
+    }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct SecondSignatureRegistrationAsset {
-    pub public_key: String,
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct DelegateRegistrationAsset {
-    pub username: String,
-}
-
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct MultiSignatureRegistrationAsset {
-    pub min: u8,
-    pub keysgroup: Vec<String>,
-    pub lifetime: u8,
+impl Default for Asset {
+    fn default() -> Asset {
+        Asset::None
+    }
 }
 
 impl Transaction {
@@ -133,24 +148,27 @@ impl Transaction {
         buffer.write_u64::<LittleEndian>(self.fee).unwrap();
 
         // Payload
-        let payload: Vec<u8> = match self.type_id {
-            Types::SecondSignatureRegistration => {
-                hex::decode(&self.asset.signature.public_key).unwrap()
-            }
-            Types::DelegateRegistration => self.asset.delegate.username.as_bytes().to_vec(),
-            Types::Vote => self.asset.votes.join("").as_bytes().to_vec(),
-            Types::MultiSignatureRegistration => {
-                let ms_asset = &self.asset.multisignature;
-                let mut buffer = vec![];
-                buffer.push(ms_asset.min);
-                buffer.push(ms_asset.lifetime);
-                buffer.extend_from_slice(ms_asset.keysgroup.join("").as_bytes());
+        let payload: Vec<u8>  = match &self.asset {
+             &Asset::Signature { ref public_key } => {
+                 hex::decode(&public_key).unwrap()
+             },
+             &Asset::Delegate { ref username } => {
+                 username.to_owned().as_bytes().to_vec()
+             },
+             &Asset::Votes { ref votes } => {
+                 votes.join("").as_bytes().to_vec()
+             },
+             &Asset::MultiSignatureRegistration { min, lifetime, ref keysgroup } => {
+                 let mut buffer = vec![];
+                 buffer.push(min);
+                 buffer.push(lifetime);
+                 buffer.extend_from_slice(keysgroup.clone().join("").as_bytes());
 
-                buffer
-            }
+                 buffer
+             },
+             _ => vec![],
+         };
 
-            _ => vec![],
-        };
         buffer.extend_from_slice(&payload);
 
         // Signature
