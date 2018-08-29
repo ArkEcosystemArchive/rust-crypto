@@ -5,6 +5,7 @@ use sha2::{Digest, Sha256};
 use std::iter;
 use secp256k1;
 use secp256k1::{Secp256k1, Signature};
+use serde_json;
 
 use enums::types::Types;
 use identities::{private_key, public_key};
@@ -19,14 +20,14 @@ pub struct Transaction {
     pub network: u8,
     #[serde(rename = "type")]
     pub type_id: Types,
-    #[serde(skip)]
     pub version: u8,
     pub asset: Asset,
     #[serde(skip)]
     pub timelock_type: u32,
-    #[serde(skip)]
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub signatures: Vec<String>,
     pub id: String,
+    #[serde(skip_serializing_if = "String::is_empty")]
     pub recipient_id: String,
     #[serde(skip)]
     pub second_signature: String,
@@ -200,6 +201,14 @@ impl Transaction {
         let pk = public_key::from_hex(&self.sender_public_key).unwrap();
 
         secp.verify(&msg, &sig, &pk).is_ok()
+    }
+
+    pub fn to_params(&self) -> Result<serde_json::Value, serde_json::Error> {
+        serde_json::to_value(self)
+    }
+
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
     }
 }
 
