@@ -1,5 +1,9 @@
-pub mod delegate_registration;
-pub mod second_signature_registration;
+pub mod delegate_registration_test;
+pub mod delegate_resignation_test;
+pub mod ipfs_test;
+pub mod multi_payment_test;
+pub mod multi_signature_registration_test;
+pub mod second_signature_registration_test;
+pub mod timelock_transfer_test;
 pub mod transfer_test;
 pub mod vote_test;
-pub mod multi_signature_registration_test;
