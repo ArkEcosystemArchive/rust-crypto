@@ -1,5 +1,6 @@
 pub mod slot;
 pub mod message;
+mod macros;
 
 use failure;
 use hex;

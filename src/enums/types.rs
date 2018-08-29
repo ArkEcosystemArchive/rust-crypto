@@ -1,7 +1,6 @@
 use std::mem::transmute;
 
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
-pub enum Types {
+enum_number!(Types {
     Transfer = 0,
     SecondSignatureRegistration = 1,
     DelegateRegistration = 2,
@@ -11,7 +10,7 @@ pub enum Types {
     TimelockTransfer = 6,
     MultiPayment = 7,
     DelegateResignation = 8,
-}
+});
 
 impl Default for Types {
     fn default() -> Types {
