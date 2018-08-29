@@ -1,12 +1,13 @@
 use hex;
-use transactions::transaction::Transaction;
-use enums::types::Types;
 use byteorder::{LittleEndian, ReadBytesExt};
 use bitcoin::util::base58;
 use std::io::Cursor;
 use std::io::prelude::*;
 
 use utils;
+use enums::types::Types;
+use transactions::transaction::Transaction;
+use identities::{address, public_key};
 
 pub fn deserialize(serialized: &str) -> Transaction {
     let decoded = hex::decode(serialized).unwrap();
@@ -18,6 +19,10 @@ pub fn deserialize(serialized: &str) -> Transaction {
     let mut asset_offset = deserialize_header(&mut bytes, &mut transaction);
     deserialize_type(&mut bytes, &mut transaction, &serialized, &mut asset_offset);
     parse_signatures(&mut transaction, &serialized, asset_offset);
+
+    if transaction.version == 1 {
+        handle_version_one(&mut transaction);
+    }
 
     transaction
 }
@@ -251,5 +256,48 @@ fn parse_signatures(transaction: &mut Transaction, serialized: &str, asset_offse
                 break;
             }
         }
+    }
+}
+
+fn handle_version_one(transaction: &mut Transaction) {
+    if transaction.second_signature.len() > 0 {
+        transaction.sign_signature = transaction.second_signature.to_owned();
+    }
+
+    match transaction.type_id {
+        Types::Vote => {
+            // TODO: transaction.network
+            let public_key = public_key::from_hex(&transaction.sender_public_key).unwrap();
+            transaction.recipient_id = address::from_public_key(&public_key);
+        }
+        Types::MultiSignatureRegistration => {
+            let mut keysgroup = transaction.asset.multisignature.keysgroup.as_mut_slice();
+            for key in keysgroup {
+                *key = String::from("+") + key;
+            }
+        }
+        _ => (),
+    }
+
+    if transaction.vendor_field_hex.len() > 0 {
+        transaction.vendor_field = utils::str_from_hex(&transaction.vendor_field_hex).unwrap();
+    }
+
+    if transaction.id.is_empty() {
+        transaction.id = transaction.get_id();
+    }
+
+    match transaction.type_id {
+        Types::SecondSignatureRegistration => {
+            // TODO: transaction.network
+            let public_key = public_key::from_hex(&transaction.sender_public_key).unwrap();
+            transaction.recipient_id = address::from_public_key(&public_key);
+        }
+        Types::MultiSignatureRegistration => {
+            // TODO: transaction.network
+            let public_key = public_key::from_hex(&transaction.sender_public_key).unwrap();
+            transaction.recipient_id = address::from_public_key(&public_key);
+        }
+        _ => (),
     }
 }
