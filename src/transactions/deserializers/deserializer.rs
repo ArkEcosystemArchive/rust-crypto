@@ -13,6 +13,8 @@ pub fn deserialize(serialized: &str) -> Transaction {
     let mut bytes = Cursor::new(decoded.as_slice());
     let mut transaction = Transaction::default();
 
+    println!("{:?}", bytes);
+
     let mut asset_offset = deserialize_header(&mut bytes, &mut transaction);
     deserialize_type(&mut bytes, &mut transaction, &serialized, &mut asset_offset);
 
@@ -63,7 +65,7 @@ fn deserialize_type(
             serialized,
             &mut asset_offset,
         ),
-        Types::Vote => (),
+        Types::Vote => deserialize_vote(bytes, &mut transaction, serialized, &mut asset_offset),
         Types::MultiSignatureRegistration => (),
         Types::Ipfs => (),
         Types::TimelockTransfer => (),
@@ -114,4 +116,43 @@ fn deserialize_delegate_registration(
     transaction.asset.delegate.username = utils::str_from_hex(&username).unwrap();
 
     *asset_offset += (username_length + 1) * 2;
+}
+
+fn deserialize_vote(
+    bytes: &mut Cursor<&[u8]>,
+    transaction: &mut Transaction,
+    serialized: &str,
+    asset_offset: &mut u8,
+) {
+    let vote_length = bytes.read_u8().unwrap();
+
+    *asset_offset += 2;
+
+    for i in 0..vote_length {
+        let index_start = *asset_offset + (i * 2 * 34);
+        let index_end = 2 * 34 - 2;
+
+        let vote_type: String = serialized
+            .chars()
+            .skip((index_start as usize) + 1)
+            .take(1)
+            .collect();
+
+        let mut vote: String = serialized
+            .chars()
+            .skip((index_start as usize) + 2)
+            .take(index_end)
+            .collect();
+
+        assert!(vote_type == "1" || vote_type == "0");
+        if vote_type == "1" {
+            vote.insert_str(0, "+");
+        } else {
+            vote.insert_str(0, "-");
+        }
+
+        transaction.asset.votes.push(vote);
+    }
+
+    *asset_offset += 2 + (vote_length * 34 * 2);
 }
