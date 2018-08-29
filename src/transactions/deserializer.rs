@@ -166,8 +166,8 @@ fn deserialize_vote(
         votes.push(vote);
     }
 
-    transaction.asset = Asset::Votes { votes };
-    *asset_offset += 2 + (vote_length * 34 * 2);
+    transaction.asset = Asset::Votes(votes);
+    *asset_offset += vote_length * 34 * 2;
 }
 
 fn deserialize_multi_signature_registration(

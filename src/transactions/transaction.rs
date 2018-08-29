@@ -59,9 +59,7 @@ pub enum Asset {
     Delegate {
         username: String,
     },
-    Votes {
-        votes: Vec<String>,
-    },
+    Votes(Vec<String>),
     #[serde(rename = "multisignature")]
     MultiSignatureRegistration {
         min: u8,
@@ -79,6 +77,8 @@ impl Default for Asset {
 impl Transaction {
     pub fn get_id(&self) -> String {
         let bytes = self.to_bytes(false, false);
+        println!("{:?}", &bytes);
+        println!("aaaaa");
         hex::encode(Sha256::digest(&bytes))
     }
 
@@ -152,7 +152,7 @@ impl Transaction {
         let payload: Vec<u8> = match &self.asset {
             &Asset::Signature { ref public_key } => hex::decode(&public_key).unwrap(),
             &Asset::Delegate { ref username } => username.to_owned().as_bytes().to_vec(),
-            &Asset::Votes { ref votes } => votes.join("").as_bytes().to_vec(),
+            &Asset::Votes(ref votes) => votes.join("").as_bytes().to_vec(),
             &Asset::MultiSignatureRegistration {
                 min,
                 lifetime,
