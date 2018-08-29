@@ -3,6 +3,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use hex;
 use std::io::prelude::*;
 use std::io::Cursor;
+use std::io::SeekFrom;
 
 use enums::types::Types;
 use identities::{address, public_key};
@@ -39,11 +40,10 @@ fn deserialize_header(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) 
     transaction.sender_public_key = hex::encode(sender_public_key_buf.to_vec());
     transaction.fee = bytes.read_u64::<LittleEndian>().unwrap();
 
-    let vendor_field_length = bytes.read_u8().unwrap();
+    let vendor_field_length = bytes.read_u8().unwrap() as usize;
     if vendor_field_length > 0 {
-        let mut vendor_field_buf = Vec::<u8>::with_capacity(vendor_field_length as usize);
+        let mut vendor_field_buf: Vec<u8> = vec![0; vendor_field_length];
         bytes.read(&mut vendor_field_buf).unwrap();
-
         transaction.vendor_field_hex = hex::encode(&vendor_field_buf);
     }
 
@@ -87,6 +87,8 @@ fn deserialize_transfer(
     transaction: &mut Transaction,
     asset_offset: &mut usize,
 ) {
+    bytes.seek(SeekFrom::Start(*asset_offset as u64 / 2)).unwrap();
+
     transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
     transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
 

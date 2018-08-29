@@ -126,8 +126,8 @@ impl Transaction {
 
         let vendor_field: Vec<u8> = if self.vendor_field.len() > 0 {
             let vendor_bytes = self.vendor_field.as_bytes();
-            if vendor_bytes.len() < 64 {
-                return vendor_bytes
+            if vendor_bytes.len() <= 64 {
+                vendor_bytes
                     .iter()
                     .cloned()
                     .chain(
@@ -135,10 +135,11 @@ impl Transaction {
                             .take(64 - vendor_bytes.len())
                             .collect::<Vec<u8>>(),
                     )
-                    .collect();
+                    .collect::<Vec<u8>>()
+            } else {
+                vendor_bytes.to_vec()
             }
 
-            vendor_bytes.to_vec()
         } else {
             iter::repeat(0).take(64).collect()
         };
