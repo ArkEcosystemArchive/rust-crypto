@@ -13,10 +13,11 @@ pub fn deserialize(serialized: &str) -> Transaction {
     let mut bytes = Cursor::new(decoded.as_slice());
     let mut transaction = Transaction::default();
 
-    println!("{:?}", bytes);
+    //println!("{:?}", bytes);
 
     let mut asset_offset = deserialize_header(&mut bytes, &mut transaction);
     deserialize_type(&mut bytes, &mut transaction, &serialized, &mut asset_offset);
+    parse_signatures(&mut transaction, &serialized, asset_offset);
 
     transaction
 }
@@ -176,4 +177,79 @@ fn deserialize_multi_signature_registration(
     transaction.asset.multisignature.lifetime = lifetime;
 
     *asset_offset += 6 + number_of_signatures * 66;
+}
+
+fn parse_signatures(transaction: &mut Transaction, serialized: &str, asset_offset: usize) {
+    let signature: String = serialized.chars().skip(asset_offset).collect();
+    let mut multi_signature_offset = 0;
+
+    if signature.len() > 0 {
+        let signature_length_str: String = signature.chars().skip(2).take(2).collect();
+        let signature_length =
+            (u8::from_str_radix(&signature_length_str, 16).unwrap() + 2) as usize;
+
+        transaction.signature = serialized
+            .chars()
+            .skip(asset_offset)
+            .take(signature_length * 2)
+            .collect();
+
+        multi_signature_offset += signature_length * 2;
+
+        let second_signature: String = serialized
+            .chars()
+            .skip(asset_offset + signature_length * 2)
+            .collect();
+
+        if second_signature.len() > 0 && !second_signature.starts_with("ff") {
+            let second_signature_length_str: String =
+                second_signature.chars().skip(2).take(2).collect();
+            let second_signature_length =
+                (u8::from_str_radix(&second_signature_length_str, 16).unwrap() + 2) as usize;
+
+            transaction.second_signature = second_signature
+                .chars()
+                .take(second_signature_length * 2)
+                .collect();
+
+            multi_signature_offset += second_signature_length * 2;
+        }
+
+        let mut signatures: String = serialized
+            .chars()
+            .skip(asset_offset + multi_signature_offset)
+            .collect();
+
+        if signatures.is_empty() || !signatures.starts_with("ff") {
+            return;
+        }
+
+        signatures = signatures.chars().skip(2).collect();
+
+        loop {
+            if signatures.is_empty() {
+                break;
+            }
+
+            let multi_signature_length_str: String = signatures.chars().skip(2).take(2).collect();
+            let multi_signature_length =
+                (u8::from_str_radix(&multi_signature_length_str, 16).unwrap() + 2) as usize;
+
+            if multi_signature_length > 0 {
+                let multi_signature: String = signatures
+                    .chars()
+                    .take(multi_signature_length * 2)
+                    .collect();
+
+                transaction.signatures.push(multi_signature);
+
+                signatures = signatures
+                    .chars()
+                    .skip(multi_signature_length * 2)
+                    .collect();
+            } else {
+                break;
+            }
+        }
+    }
 }
