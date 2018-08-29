@@ -1,4 +1,4 @@
 pub mod transaction;
-pub mod deserializers;
+pub mod deserializer;
 
 pub use self::transaction::Transaction;
