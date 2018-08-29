@@ -50,7 +50,7 @@ fn deserialize_type(
 ) {
     let type_id = transaction.type_id.clone();
     match type_id {
-        Types::Transfer => deserialize_vote(bytes, &mut transaction),
+        Types::Transfer => deserialize_transfer(bytes, &mut transaction),
         Types::SecondSignatureRegistration => deserialize_second_signature_registration(
             bytes,
             &mut transaction,
@@ -72,7 +72,7 @@ fn deserialize_type(
     }
 }
 
-fn deserialize_vote(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) {
+fn deserialize_transfer(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) {
     transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
     transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
 
