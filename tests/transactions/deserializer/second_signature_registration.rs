@@ -40,7 +40,8 @@ fn test_signed_with_a_second_passphrase() {
         transaction.signature,
         fixture["data"]["signature"].as_str().unwrap()
     );
+    assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+
     let asset = fixture["data"]["asset"].clone();
     assert_eq!(transaction.asset, serde_json::from_value(asset).unwrap());
-    assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
 }
