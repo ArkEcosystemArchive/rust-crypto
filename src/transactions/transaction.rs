@@ -1,11 +1,11 @@
-use hex;
-use byteorder::{LittleEndian, WriteBytesExt};
 use bitcoin::util::base58;
-use sha2::{Digest, Sha256};
-use std::iter;
+use byteorder::{LittleEndian, WriteBytesExt};
+use hex;
 use secp256k1;
 use secp256k1::{Secp256k1, Signature};
 use serde_json;
+use sha2::{Digest, Sha256};
+use std::iter;
 
 use enums::types::Types;
 use identities::{private_key, public_key};
@@ -16,7 +16,6 @@ use utils::message::Message;
 pub struct Transaction {
     #[serde(skip)]
     pub header: u8,
-    #[serde(skip)]
     pub network: u8,
     #[serde(rename = "type")]
     pub type_id: Types,
@@ -49,25 +48,25 @@ pub struct Transaction {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all="lowercase")]
+#[serde(rename_all = "lowercase")]
 pub enum Asset {
     #[serde(skip)]
     None,
     Signature {
-        public_key: String
+        public_key: String,
     },
     Delegate {
-        username: String
+        username: String,
     },
     Votes {
-        votes: Vec<String>
+        votes: Vec<String>,
     },
-    #[serde(rename="multisignature")]
+    #[serde(rename = "multisignature")]
     MultiSignatureRegistration {
         min: u8,
         keysgroup: Vec<String>,
         lifetime: u8,
-    }
+    },
 }
 
 impl Default for Asset {
@@ -115,9 +114,9 @@ impl Transaction {
         buffer.write_u8(self.type_id.clone() as u8).unwrap();
         buffer.write_u32::<LittleEndian>(self.timestamp).unwrap();
 
-        buffer.extend_from_slice(self.sender_public_key.as_bytes());
+        buffer.extend_from_slice(&hex::decode(&self.sender_public_key).unwrap());
 
-        let recipient_id = if !self.recipient_id.is_empty() {
+        let recipient_id = if self.recipient_id.len() > 0 {
             base58::from_check(&self.recipient_id).unwrap()
         } else {
             iter::repeat(0).take(21).collect()
@@ -125,7 +124,7 @@ impl Transaction {
 
         buffer.extend_from_slice(&recipient_id);
 
-        let vendor_field: Vec<u8> = if !self.vendor_field.is_empty() {
+        let vendor_field: Vec<u8> = if self.vendor_field.len() > 0 {
             let vendor_bytes = self.vendor_field.as_bytes();
             if vendor_bytes.len() < 64 {
                 return vendor_bytes
@@ -149,45 +148,36 @@ impl Transaction {
         buffer.write_u64::<LittleEndian>(self.fee).unwrap();
 
         // Payload
-        let payload: Vec<u8>  = match &self.asset {
-             &Asset::Signature { ref public_key } => {
-                 hex::decode(&public_key).unwrap()
-             },
-             &Asset::Delegate { ref username } => {
-                 username.to_owned().as_bytes().to_vec()
-             },
-             &Asset::Votes { ref votes } => {
-                 votes.join("").as_bytes().to_vec()
-             },
-             &Asset::MultiSignatureRegistration { min, lifetime, ref keysgroup } => {
-                 let mut buffer = vec![];
-                 buffer.push(min);
-                 buffer.push(lifetime);
-                 buffer.extend_from_slice(keysgroup.clone().join("").as_bytes());
+        let payload: Vec<u8> = match &self.asset {
+            &Asset::Signature { ref public_key } => hex::decode(&public_key).unwrap(),
+            &Asset::Delegate { ref username } => username.to_owned().as_bytes().to_vec(),
+            &Asset::Votes { ref votes } => votes.join("").as_bytes().to_vec(),
+            &Asset::MultiSignatureRegistration {
+                min,
+                lifetime,
+                ref keysgroup,
+            } => {
+                let mut buffer = vec![];
+                buffer.push(min);
+                buffer.push(lifetime);
+                buffer.extend_from_slice(keysgroup.clone().join("").as_bytes());
 
-                 buffer
-             },
-             _ => vec![],
-         };
+                buffer
+            }
+            _ => vec![],
+        };
 
         buffer.extend_from_slice(&payload);
 
         // Signature
-        let signature = if !skip_signature && !self.signature.is_empty() {
-            hex::decode(&self.signature).unwrap()
-        } else {
-            vec![]
-        };
+        if !skip_signature && self.signature.len() > 0 {
+            buffer.extend_from_slice(&hex::decode(&self.signature).unwrap());
+        }
 
         // Second Signature
-        let second_signature = if !skip_second_signature && !self.second_signature.is_empty() {
-            hex::decode(&self.second_signature).unwrap()
-        } else {
-            vec![]
-        };
-
-        buffer.extend_from_slice(&signature);
-        buffer.extend_from_slice(&second_signature);
+        if !skip_second_signature && self.second_signature.len() > 0 {
+            buffer.extend_from_slice(&hex::decode(&self.second_signature).unwrap());
+        }
 
         buffer
     }
