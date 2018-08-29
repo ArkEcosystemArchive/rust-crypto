@@ -1,6 +1,6 @@
+use hex;
 use secp256k1::{Error, Secp256k1, SecretKey};
 use sha2::{Digest, Sha256};
-use hex;
 
 pub type PrivateKey = SecretKey;
 

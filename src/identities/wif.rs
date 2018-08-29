@@ -1,5 +1,5 @@
-use sha2::{Digest, Sha256};
 use bitcoin::util::base58;
+use sha2::{Digest, Sha256};
 
 use super::super::configuration;
 

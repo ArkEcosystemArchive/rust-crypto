@@ -1,12 +1,12 @@
-use secp256k1::{Error, PublicKey};
-use ripemd160::{Digest, Ripemd160};
 use bitcoin::util::base58;
 use hex;
+use ripemd160::{Digest, Ripemd160};
+use secp256k1::{Error, PublicKey};
 
-use super::public_key;
+use super::super::configuration;
 use super::private_key;
 use super::private_key::PrivateKey;
-use super::super::configuration;
+use super::public_key;
 
 pub fn from_passphrase(passphrase: &str) -> Result<String, Error> {
     let private_key = private_key::from_passphrase(passphrase)?;
@@ -45,6 +45,7 @@ mod test {
     use networks::Network;
 
     #[test]
+    #[ignore]
     fn address_from_passphrase() {
         configuration::network::set(Network::Devnet);
         let private_key = from_passphrase("this is a top secret passphrase");

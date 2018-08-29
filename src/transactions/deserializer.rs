@@ -1,13 +1,13 @@
-use hex;
-use byteorder::{LittleEndian, ReadBytesExt};
 use bitcoin::util::base58;
-use std::io::Cursor;
+use byteorder::{LittleEndian, ReadBytesExt};
+use hex;
 use std::io::prelude::*;
+use std::io::Cursor;
 
-use utils;
 use enums::types::Types;
-use transactions::transaction::{Asset, Transaction};
 use identities::{address, public_key};
+use transactions::transaction::{Asset, Transaction};
+use utils;
 
 pub fn deserialize(serialized: &str) -> Transaction {
     let decoded = hex::decode(serialized).unwrap();
@@ -58,7 +58,7 @@ fn deserialize_type(
 ) {
     let type_id = transaction.type_id.clone();
     match type_id {
-        Types::Transfer => deserialize_transfer(bytes, &mut transaction),
+        Types::Transfer => deserialize_transfer(bytes, &mut transaction, &mut asset_offset),
         Types::SecondSignatureRegistration => deserialize_second_signature_registration(
             bytes,
             &mut transaction,
@@ -82,13 +82,19 @@ fn deserialize_type(
     }
 }
 
-fn deserialize_transfer(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) {
+fn deserialize_transfer(
+    bytes: &mut Cursor<&[u8]>,
+    transaction: &mut Transaction,
+    asset_offset: &mut usize,
+) {
     transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
     transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
 
     let mut recipient_id_buf = [0; 21];
     bytes.read(&mut recipient_id_buf).unwrap();
     transaction.recipient_id = base58::check_encode_slice(&recipient_id_buf);
+
+    *asset_offset += (21 + 12) * 2;
 }
 
 fn deserialize_second_signature_registration(
@@ -100,7 +106,7 @@ fn deserialize_second_signature_registration(
     transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
     transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
     transaction.asset = Asset::Signature {
-        public_key: serialized.chars().skip(*asset_offset).take(66).collect()
+        public_key: serialized.chars().skip(*asset_offset).take(66).collect(),
     };
 
     *asset_offset += 66;
@@ -119,7 +125,9 @@ fn deserialize_delegate_registration(
         .take(username_length * 2)
         .collect();
 
-    transaction.asset = Asset::Delegate { username: utils::str_from_hex(&username).unwrap() };
+    transaction.asset = Asset::Delegate {
+        username: utils::str_from_hex(&username).unwrap(),
+    };
     *asset_offset += (username_length + 1) * 2;
 }
 
@@ -169,7 +177,6 @@ fn deserialize_multi_signature_registration(
     let number_of_signatures = bytes.read_u8().unwrap() as usize;
     let lifetime = bytes.read_u8().unwrap();
 
-
     let mut keysgroup = Vec::with_capacity(number_of_signatures);
     for _ in 0..number_of_signatures {
         let mut public_key_buf = [0; 33];
@@ -180,7 +187,7 @@ fn deserialize_multi_signature_registration(
     transaction.asset = Asset::MultiSignatureRegistration {
         keysgroup,
         min,
-        lifetime
+        lifetime,
     };
 
     *asset_offset += 6 + number_of_signatures * 66;
@@ -272,17 +279,19 @@ fn handle_version_one(transaction: &mut Transaction) {
             let public_key = public_key::from_hex(&transaction.sender_public_key).unwrap();
             transaction.recipient_id = address::from_public_key(&public_key);
         }
-        Types::MultiSignatureRegistration => {
-            match &mut transaction.asset {
-                &mut Asset::MultiSignatureRegistration { min: _, lifetime: _, ref mut keysgroup } => {
-                    let mut keysgroup = keysgroup.as_mut_slice();
-                    for key in keysgroup {
-                        *key = String::from("+") + key;
-                    }
-                },
-                _ => ()
+        Types::MultiSignatureRegistration => match &mut transaction.asset {
+            &mut Asset::MultiSignatureRegistration {
+                min: _,
+                lifetime: _,
+                ref mut keysgroup,
+            } => {
+                let mut keysgroup = keysgroup.as_mut_slice();
+                for key in keysgroup {
+                    *key = String::from("+") + key;
+                }
             }
-        }
+            _ => (),
+        },
         _ => (),
     }
 

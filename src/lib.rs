@@ -15,8 +15,8 @@ extern crate sha2;
 
 #[macro_use]
 pub mod utils;
-pub mod enums;
 pub mod configuration;
+pub mod enums;
 pub mod identities;
 pub mod networks;
 pub mod transactions;

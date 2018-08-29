@@ -1,5 +1,5 @@
-use secp256k1::{Error, PublicKey, Secp256k1};
 use hex;
+use secp256k1::{Error, PublicKey, Secp256k1};
 
 use super::private_key;
 

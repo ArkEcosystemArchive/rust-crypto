@@ -1,9 +1,9 @@
-use serde_json::Value;
-use sha2::{Digest, Sha256};
 use hex;
 use secp256k1;
 use secp256k1::{Secp256k1, Signature};
 use serde_json;
+use serde_json::Value;
+use sha2::{Digest, Sha256};
 
 use super::super::identities::{private_key, public_key};
 

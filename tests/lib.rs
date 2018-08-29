@@ -3,9 +3,9 @@ extern crate serde;
 #[macro_use]
 extern crate serde_json;
 
+use serde_json::{from_str, Value};
 use std::fs::File;
 use std::io::prelude::*;
-use serde_json::{from_str, Value};
 
 pub mod transactions;
 

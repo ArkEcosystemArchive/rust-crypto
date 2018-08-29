@@ -1,6 +1,6 @@
-pub mod slot;
-pub mod message;
 mod macros;
+pub mod message;
+pub mod slot;
 
 use failure;
 use hex;
