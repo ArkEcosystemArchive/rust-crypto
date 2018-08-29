@@ -47,12 +47,13 @@ pub struct Transaction {
     pub timelock: u64,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum Asset {
     #[serde(skip)]
     None,
     Signature {
+        #[serde(rename = "publicKey")]
         public_key: String,
     },
     Delegate {
@@ -139,7 +140,6 @@ impl Transaction {
             } else {
                 vendor_bytes.to_vec()
             }
-
         } else {
             iter::repeat(0).take(64).collect()
         };

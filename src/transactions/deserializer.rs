@@ -87,7 +87,9 @@ fn deserialize_transfer(
     transaction: &mut Transaction,
     asset_offset: &mut usize,
 ) {
-    bytes.seek(SeekFrom::Start(*asset_offset as u64 / 2)).unwrap();
+    bytes
+        .seek(SeekFrom::Start(*asset_offset as u64 / 2))
+        .unwrap();
 
     transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
     transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
@@ -100,13 +102,11 @@ fn deserialize_transfer(
 }
 
 fn deserialize_second_signature_registration(
-    bytes: &mut Cursor<&[u8]>,
+    _bytes: &mut Cursor<&[u8]>,
     transaction: &mut Transaction,
     serialized: &str,
     asset_offset: &mut usize,
 ) {
-    transaction.amount = bytes.read_u64::<LittleEndian>().unwrap();
-    transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
     transaction.asset = Asset::Signature {
         public_key: serialized.chars().skip(*asset_offset).take(66).collect(),
     };
