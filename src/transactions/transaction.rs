@@ -77,8 +77,6 @@ impl Default for Asset {
 impl Transaction {
     pub fn get_id(&self) -> String {
         let bytes = self.to_bytes(false, false);
-        println!("{:?}", &bytes);
-        println!("aaaaa");
         hex::encode(Sha256::digest(&bytes))
     }
 

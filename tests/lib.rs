@@ -1,6 +1,5 @@
 extern crate arkecosystem_crypto;
 extern crate serde;
-#[macro_use]
 extern crate serde_json;
 
 use serde_json::{from_str, Value};
