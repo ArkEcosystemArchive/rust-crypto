@@ -1,6 +1,6 @@
 use arkecosystem_crypto::configuration::network;
 use arkecosystem_crypto::enums::types::Types;
-use arkecosystem_crypto::networks::Network;
+use arkecosystem_crypto::enums::Network;
 use arkecosystem_crypto::transactions::deserializer;
 use *;
 

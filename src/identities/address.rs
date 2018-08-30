@@ -42,7 +42,7 @@ pub fn validate(address: &str) -> bool {
 #[cfg(test)]
 mod test {
     use super::*;
-    use networks::Network;
+    use enums::Network;
 
     #[test]
     #[ignore]
