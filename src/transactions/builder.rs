@@ -60,7 +60,7 @@ pub fn build_vote(
 ) -> Result<Transaction, failure::Error> {
     let mut transaction = create(TransactionType::Vote);
     transaction.asset = Asset::Votes(votes);
-    transaction.recipient_id = address::from_passphrase(passphrase)?;
+    transaction.recipient_id = address::from_passphrase(passphrase, None)?;
 
     Ok(sign(transaction, passphrase, second_passphrase))
 }

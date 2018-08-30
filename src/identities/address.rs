@@ -8,32 +8,41 @@ use super::private_key;
 use super::private_key::PrivateKey;
 use super::public_key;
 
-pub fn from_passphrase(passphrase: &str) -> Result<String, Error> {
+pub fn from_passphrase(passphrase: &str, network_version: Option<u8>) -> Result<String, Error> {
     let private_key = private_key::from_passphrase(passphrase)?;
-    Ok(from_private_key(&private_key))
+    Ok(from_private_key(&private_key, network_version))
 }
 
-pub fn from_private_key(private_key: &PrivateKey) -> String {
+pub fn from_private_key(private_key: &PrivateKey, network_version: Option<u8>) -> String {
     let public_key = public_key::from_private_key(private_key);
-    from_public_key(&public_key)
+    from_public_key(&public_key, network_version)
 }
 
-pub fn from_public_key(public_key: &PublicKey) -> String {
+pub fn from_public_key(public_key: &PublicKey, network_version: Option<u8>) -> String {
+    let network_version = match network_version {
+        Some(network_version) => network_version,
+        None => configuration::network::get().version(),
+    };
+
     // TODO: fix unwrap
     let bytes = hex::decode(public_key.to_string()).unwrap();
 
     let ripemd160 = Ripemd160::digest(&bytes);
     let mut data = vec![];
-    data.push(configuration::network::get().version());
+    data.push(network_version);
     data.extend_from_slice(&ripemd160);
     base58::check_encode_slice(&data)
 }
 
-pub fn validate(address: &str) -> bool {
-    let network = configuration::network::get().version();
+pub fn validate(address: &str, network_version: Option<u8>) -> bool {
+    let network_version = match network_version {
+        Some(network_version) => network_version,
+        None => configuration::network::get().version(),
+    };
+
     let bytes = base58::from_check(address);
     if bytes.is_ok() {
-        return *bytes.unwrap().first().unwrap() == network;
+        return *bytes.unwrap().first().unwrap() == network_version;
     }
 
     false
@@ -47,14 +56,14 @@ mod test {
     #[test]
     #[ignore]
     fn address_from_passphrase() {
-        configuration::network::set(Network::Devnet);
-        let private_key = from_passphrase("this is a top secret passphrase");
+        let private_key = from_passphrase(
+            "this is a top secret passphrase",
+            Some(Network::Devnet.version()),
+        );
         assert_eq!(
             private_key.unwrap().to_string(),
             "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib"
         );
-
-        configuration::network::set(Network::Mainnet);
     }
 
     #[test]
