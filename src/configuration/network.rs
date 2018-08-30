@@ -1,4 +1,4 @@
-use networks::Network;
+use enums::networks::Network;
 use std::sync::Mutex;
 
 lazy_static! {

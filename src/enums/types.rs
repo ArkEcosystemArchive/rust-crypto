@@ -12,6 +12,22 @@ enum_number!(Types {
     DelegateResignation = 8,
 });
 
+impl Types {
+    pub fn fee(&self) -> u64 {
+        match self {
+            Types::Transfer => 10_000_000,
+            Types::SecondSignatureRegistration => 500_000_000,
+            Types::DelegateRegistration => 2_500_000_000,
+            Types::Vote => 100_000_000,
+            Types::MultiSignatureRegistration => 500_000_000,
+            Types::Ipfs => 0,
+            Types::TimelockTransfer => 0,
+            Types::MultiPayment => 0,
+            Types::DelegateResignation => 0,
+        }
+    }
+}
+
 impl Default for Types {
     fn default() -> Types {
         Types::Transfer

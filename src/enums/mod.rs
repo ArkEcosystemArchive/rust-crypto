@@ -1,2 +1,2 @@
-pub mod fees;
+pub mod networks;
 pub mod types;

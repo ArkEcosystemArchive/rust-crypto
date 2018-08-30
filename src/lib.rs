@@ -18,5 +18,4 @@ pub mod utils;
 pub mod configuration;
 pub mod enums;
 pub mod identities;
-pub mod networks;
 pub mod transactions;

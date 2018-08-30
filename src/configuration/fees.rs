@@ -1,32 +1,26 @@
-use enums::fees;
 use enums::types::Types;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
 lazy_static! {
-    static ref FEES: Mutex<HashMap<Types, u32>> = {
+    #[cfg_attr(rustfmt, rustfmt_skip)]
+    static ref FEES: Mutex<HashMap<Types, u64>> = {
         let mut m = HashMap::new();
-        m.insert(Types::Transfer, fees::TRANSFER);
-        m.insert(
-            Types::SecondSignatureRegistration,
-            fees::SECOND_SIGNATURE_REGISTRATION,
-        );
-        m.insert(Types::DelegateRegistration, fees::DELEGATE_REGISTRATION);
-        m.insert(Types::Vote, fees::VOTE);
-        m.insert(
-            Types::MultiSignatureRegistration,
-            fees::MULTI_SIGNATURE_REGISTRATION,
-        );
-        m.insert(Types::Ipfs, fees::IPFS);
-        m.insert(Types::TimelockTransfer, fees::TIMELOCK_TRANSFER);
-        m.insert(Types::MultiPayment, fees::MULTI_PAYMENT);
-        m.insert(Types::DelegateResignation, fees::DELEGATE_RESIGNATION);
+        m.insert(Types::Transfer, Types::Transfer.fee());
+        m.insert(Types::SecondSignatureRegistration, Types::SecondSignatureRegistration.fee());
+        m.insert(Types::DelegateRegistration, Types::DelegateRegistration.fee());
+        m.insert(Types::Vote, Types::Vote.fee());
+        m.insert(Types::MultiSignatureRegistration, Types::MultiSignatureRegistration.fee());
+        m.insert(Types::Ipfs, Types::Ipfs.fee());
+        m.insert(Types::TimelockTransfer, Types::TimelockTransfer.fee());
+        m.insert(Types::MultiPayment, Types::MultiPayment.fee());
+        m.insert(Types::DelegateResignation, Types::DelegateResignation.fee());
 
         Mutex::new(m)
     };
 }
 
-pub fn get(transaction_type: Types) -> u32 {
+pub fn get(transaction_type: Types) -> u64 {
     FEES.lock()
         .unwrap()
         .get(&transaction_type)
@@ -34,7 +28,7 @@ pub fn get(transaction_type: Types) -> u32 {
         .unwrap()
 }
 
-pub fn set(transaction_type: Types, value: u32) {
+pub fn set(transaction_type: Types, value: u64) {
     FEES.lock().unwrap().insert(transaction_type, value);
 }
 
@@ -44,7 +38,7 @@ mod tests {
 
     #[test]
     fn get_fee() {
-        assert_eq!(get(Types::Vote), fees::VOTE);
+        assert_eq!(get(Types::Vote), Types::Vote.fee());
     }
 
     #[test]
