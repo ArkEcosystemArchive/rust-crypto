@@ -1,6 +1,5 @@
-use ::*;
-use arkecosystem_crypto::transactions::Transaction;
-use arkecosystem_crypto::transactions::deserializers::deserializer;
+use arkecosystem_crypto::transactions::deserializer;
+use *;
 
 #[test]
 fn test_deserialize() {
