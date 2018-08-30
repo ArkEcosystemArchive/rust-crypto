@@ -95,11 +95,11 @@ impl Transaction {
     }
 
     pub fn verify(&self) -> bool {
-        self.internal_verify(&self.signature, &self.to_bytes(true, true))
+        self.internal_verify(&self.sender_public_key, &self.signature, &self.to_bytes(true, true))
     }
 
-    pub fn second_verify(&self) -> bool {
-        self.internal_verify(&self.sign_signature, &self.to_bytes(false, true))
+    pub fn second_verify(&self, sender_public_key: &str) -> bool {
+        self.internal_verify(&sender_public_key, &self.sign_signature, &self.to_bytes(false, true))
     }
 
     pub fn to_bytes(&self, skip_signature: bool, skip_second_signature: bool) -> Vec<u8> {
@@ -176,13 +176,13 @@ impl Transaction {
         buffer
     }
 
-    fn internal_verify(&self, signature: &str, bytes: &[u8]) -> bool {
+    fn internal_verify(&self, sender_public_key: &str, signature: &str, bytes: &[u8]) -> bool {
         let hash = Sha256::digest(&bytes);
         let msg = secp256k1::Message::from_slice(&hash).unwrap();
 
         let secp = Secp256k1::new();
         let sig = Signature::from_der(&secp, &hex::decode(signature).unwrap()).unwrap();
-        let pk = public_key::from_hex(&self.sender_public_key).unwrap();
+        let pk = public_key::from_hex(&sender_public_key).unwrap();
 
         secp.verify(&msg, &sig, &pk).is_ok()
     }
