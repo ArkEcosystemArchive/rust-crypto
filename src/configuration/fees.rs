@@ -48,6 +48,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn set_fee() {
         set(Types::Vote, 0);
         assert_eq!(get(Types::Vote), 0);

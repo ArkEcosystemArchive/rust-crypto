@@ -15,7 +15,7 @@ pub fn serialize(transaction: &Transaction) -> String {
     bytes.write_u8(if transaction.network > 0 { transaction.network } else { network::get().version() }).unwrap();
     bytes.write_u8(transaction.type_id as u8).unwrap();
     bytes.write_u32::<LittleEndian>(transaction.timestamp).unwrap();
-    bytes.write(transaction.sender_public_key.as_bytes()).unwrap();
+    bytes.write(&hex::decode(&transaction.sender_public_key).unwrap()).unwrap();
     bytes.write_u64::<LittleEndian>(transaction.fee).unwrap();
 
     serialize_vendor_field(transaction, &mut bytes);
@@ -66,8 +66,7 @@ fn serialize_transfer(transaction: &Transaction, bytes: &mut Vec<u8>) {
         .unwrap();
 
     let recipient_id = base58::from_check(&transaction.recipient_id).unwrap();
-    let recipient_bytes = hex::encode(recipient_id);
-    bytes.write(&recipient_bytes.as_bytes()).unwrap();
+    bytes.write(&recipient_id).unwrap();
 }
 
 fn serialize_second_signature_registration(transaction: &Transaction, bytes: &mut Vec<u8>) {

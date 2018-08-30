@@ -15,8 +15,6 @@ pub fn deserialize(serialized: &str) -> Transaction {
     let mut bytes = Cursor::new(decoded.as_slice());
     let mut transaction = Transaction::default();
 
-    //println!("{:?}", bytes);
-
     let mut asset_offset = deserialize_header(&mut bytes, &mut transaction);
     deserialize_type(&mut bytes, &mut transaction, &serialized, &mut asset_offset);
     parse_signatures(&mut transaction, &serialized, asset_offset);
