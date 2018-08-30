@@ -82,11 +82,8 @@ fn serialize_second_signature_registration(transaction: &Transaction, bytes: &mu
 fn serialize_delegate_registration(transaction: &Transaction, bytes: &mut Vec<u8>) {
     match &transaction.asset {
         Asset::Delegate { username } => {
-            let username_length = username.len() / 2;
-            bytes.write_u8(username_length as u8).unwrap();
-
-            let username_bytes = hex::decode(username).unwrap();
-            bytes.write(&username_bytes).unwrap();
+            bytes.write_u8(username.len() as u8).unwrap();
+            bytes.write(&username.as_bytes()).unwrap();
         }
         _ => (),
     }
