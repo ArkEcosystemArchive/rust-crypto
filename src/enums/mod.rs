@@ -1,5 +1,5 @@
 pub mod networks;
-pub mod types;
+pub mod transaction_types;
 
 pub use self::networks::Network;
-pub use self::types::Types;
+pub use self::transaction_types::TransactionType;

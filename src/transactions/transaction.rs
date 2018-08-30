@@ -7,7 +7,7 @@ use serde_json;
 use sha2::{Digest, Sha256};
 use std::iter;
 
-use enums::types::Types;
+use enums::TransactionType;
 use identities::{private_key, public_key};
 use utils::message::Message;
 
@@ -18,7 +18,7 @@ pub struct Transaction {
     pub header: u8,
     pub network: u8,
     #[serde(rename = "type")]
-    pub type_id: Types,
+    pub type_id: TransactionType,
     pub version: u8,
     pub asset: Asset,
     #[serde(skip)]

@@ -4,7 +4,7 @@ use hex;
 use std::io::prelude::*;
 
 use configuration::network;
-use enums::types::Types;
+use enums::TransactionType;
 use transactions::transaction::{Asset, Transaction};
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
@@ -43,19 +43,21 @@ fn serialize_vendor_field(transaction: &Transaction, bytes: &mut Vec<u8>) {
 
 fn serialize_type(transaction: &Transaction, mut bytes: &mut Vec<u8>) {
     match transaction.type_id {
-        Types::Transfer => serialize_transfer(transaction, &mut bytes),
-        Types::SecondSignatureRegistration => {
+        TransactionType::Transfer => serialize_transfer(transaction, &mut bytes),
+        TransactionType::SecondSignatureRegistration => {
             serialize_second_signature_registration(transaction, &mut bytes)
         }
-        Types::DelegateRegistration => serialize_delegate_registration(transaction, &mut bytes),
-        Types::Vote => serialize_vote(transaction, &mut bytes),
-        Types::MultiSignatureRegistration => {
+        TransactionType::DelegateRegistration => {
+            serialize_delegate_registration(transaction, &mut bytes)
+        }
+        TransactionType::Vote => serialize_vote(transaction, &mut bytes),
+        TransactionType::MultiSignatureRegistration => {
             serialize_multi_signature_registration(transaction, &mut bytes)
         }
-        Types::Ipfs => (),
-        Types::TimelockTransfer => (),
-        Types::MultiPayment => (),
-        Types::DelegateResignation => (),
+        TransactionType::Ipfs => (),
+        TransactionType::TimelockTransfer => (),
+        TransactionType::MultiPayment => (),
+        TransactionType::DelegateResignation => (),
     }
 }
 

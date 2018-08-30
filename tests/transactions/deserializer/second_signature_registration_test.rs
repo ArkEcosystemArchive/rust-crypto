@@ -1,6 +1,5 @@
 use arkecosystem_crypto::configuration::network;
-use arkecosystem_crypto::enums::types::Types;
-use arkecosystem_crypto::enums::Network;
+use arkecosystem_crypto::enums::{Network, TransactionType};
 use arkecosystem_crypto::transactions::deserializer;
 use *;
 
@@ -14,7 +13,10 @@ fn test_signed_with_a_second_passphrase() {
 
     assert_eq!(transaction.version, 1);
     assert_eq!(transaction.network, 30);
-    assert_eq!(transaction.type_id, Types::SecondSignatureRegistration);
+    assert_eq!(
+        transaction.type_id,
+        TransactionType::SecondSignatureRegistration
+    );
     assert_eq!(
         transaction.timestamp,
         fixture["data"]["timestamp"].as_u64().unwrap() as u32

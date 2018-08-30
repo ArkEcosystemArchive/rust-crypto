@@ -5,7 +5,7 @@ use std::io::prelude::*;
 use std::io::Cursor;
 use std::io::SeekFrom;
 
-use enums::types::Types;
+use enums::TransactionType;
 use identities::{address, public_key};
 use transactions::transaction::{Asset, Transaction};
 use utils;
@@ -56,27 +56,31 @@ fn deserialize_type(
 ) {
     let type_id = transaction.type_id.clone();
     match type_id {
-        Types::Transfer => deserialize_transfer(bytes, &mut transaction, &mut asset_offset),
-        Types::SecondSignatureRegistration => deserialize_second_signature_registration(
+        TransactionType::Transfer => {
+            deserialize_transfer(bytes, &mut transaction, &mut asset_offset)
+        }
+        TransactionType::SecondSignatureRegistration => deserialize_second_signature_registration(
             bytes,
             &mut transaction,
             serialized,
             &mut asset_offset,
         ),
-        Types::DelegateRegistration => deserialize_delegate_registration(
+        TransactionType::DelegateRegistration => deserialize_delegate_registration(
             bytes,
             &mut transaction,
             serialized,
             &mut asset_offset,
         ),
-        Types::Vote => deserialize_vote(bytes, &mut transaction, serialized, &mut asset_offset),
-        Types::MultiSignatureRegistration => {
+        TransactionType::Vote => {
+            deserialize_vote(bytes, &mut transaction, serialized, &mut asset_offset)
+        }
+        TransactionType::MultiSignatureRegistration => {
             deserialize_multi_signature_registration(bytes, &mut transaction, &mut asset_offset)
         }
-        Types::Ipfs => (),
-        Types::TimelockTransfer => (),
-        Types::MultiPayment => (),
-        Types::DelegateResignation => (),
+        TransactionType::Ipfs => (),
+        TransactionType::TimelockTransfer => (),
+        TransactionType::MultiPayment => (),
+        TransactionType::DelegateResignation => (),
     }
 }
 
@@ -274,12 +278,12 @@ fn handle_version_one(transaction: &mut Transaction) {
     }
 
     match transaction.type_id {
-        Types::Vote => {
+        TransactionType::Vote => {
             // TODO: transaction.network
             let public_key = public_key::from_hex(&transaction.sender_public_key).unwrap();
             transaction.recipient_id = address::from_public_key(&public_key);
         }
-        Types::MultiSignatureRegistration => match &mut transaction.asset {
+        TransactionType::MultiSignatureRegistration => match &mut transaction.asset {
             &mut Asset::MultiSignatureRegistration {
                 min: _,
                 lifetime: _,
@@ -304,12 +308,12 @@ fn handle_version_one(transaction: &mut Transaction) {
     }
 
     match transaction.type_id {
-        Types::SecondSignatureRegistration => {
+        TransactionType::SecondSignatureRegistration => {
             // TODO: transaction.network
             let public_key = public_key::from_hex(&transaction.sender_public_key).unwrap();
             transaction.recipient_id = address::from_public_key(&public_key);
         }
-        Types::MultiSignatureRegistration => {
+        TransactionType::MultiSignatureRegistration => {
             // TODO: transaction.network
             let public_key = public_key::from_hex(&transaction.sender_public_key).unwrap();
             transaction.recipient_id = address::from_public_key(&public_key);
