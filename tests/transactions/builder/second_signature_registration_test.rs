@@ -3,12 +3,9 @@ use arkecosystem_crypto::transactions::builder;
 
 #[test]
 fn test_signed_with_a_passphrase() {
-    let transaction = builder::build_transfer(
+    let transaction = builder::build_second_signature_registration(
         "this is a top secret passphrase",
-        None,
-        "AXoXnFi4z1Z6aFvjEYkDVCtBGW2PaRiM25",
-        133_380_000_000,
-        "This is a transaction from Rust",
+        "this is a top secret second passphrase",
     );
 
     assert!(transaction.is_ok());
@@ -17,12 +14,9 @@ fn test_signed_with_a_passphrase() {
 
 #[test]
 fn test_signed_with_a_second_passphrase() {
-    let transaction = builder::build_transfer(
+    let transaction = builder::build_second_signature_registration(
         "this is a top secret passphrase",
-        Some("this is a top secret second passphrase"),
-        "AXoXnFi4z1Z6aFvjEYkDVCtBGW2PaRiM25",
-        133_380_000_000,
-        "This is a transaction from Rust",
+        "this is a top secret second passphrase",
     );
 
     let second_public_key = public_key::from_passphrase("this is a top secret second passphrase")
