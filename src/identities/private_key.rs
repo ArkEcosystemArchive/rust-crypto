@@ -1,5 +1,5 @@
 use hex;
-use secp256k1::{Error, Secp256k1, SecretKey};
+use secp256k1::{Error, Message, Secp256k1, SecretKey};
 use sha2::{Digest, Sha256};
 
 pub type PrivateKey = SecretKey;
@@ -14,6 +14,16 @@ pub fn from_hex(private_key: &str) -> Result<PrivateKey, Error> {
         &Secp256k1::new(),
         hex::decode(private_key).unwrap().as_slice(),
     )
+}
+
+pub fn sign(bytes: &[u8], passphrase: &str) -> String {
+    let key = from_passphrase(passphrase).unwrap();
+    let hash = &Sha256::digest(&bytes);
+    let msg = Message::from_slice(&hash).unwrap();
+    let secp = Secp256k1::new();
+    let sig = secp.sign(&msg, &key);
+
+    hex::encode(sig.serialize_der(&secp))
 }
 
 #[cfg(test)]

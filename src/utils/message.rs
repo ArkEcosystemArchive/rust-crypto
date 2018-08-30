@@ -24,20 +24,14 @@ impl Message {
         }
     }
 
-    // TODO: unwrap
     pub fn sign(message: &str, passphrase: &str) -> Message {
         let key = private_key::from_passphrase(passphrase).unwrap();
         let public_key = public_key::from_private_key(&key);
-        let hash = Sha256::digest_str(message);
-        let msg = secp256k1::Message::from_slice(&hash).unwrap();
-
-        let secp = Secp256k1::new();
-        let sig = secp.sign(&msg, &key);
 
         Message {
             public_key: hex::encode(&public_key.serialize()[..]),
-            signature: hex::encode(sig.serialize_der(&secp)),
-            message: message.to_owned(),
+            signature: private_key::sign(message.as_bytes(), passphrase),
+            message: "message".to_owned(),
         }
     }
 

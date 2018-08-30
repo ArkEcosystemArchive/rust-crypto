@@ -84,18 +84,13 @@ impl Transaction {
     pub fn sign(&mut self, passphrase: &str) -> &Self {
         let private_key = private_key::from_passphrase(passphrase).unwrap();
         let public_key = public_key::from_private_key(&private_key);
-        self.sender_public_key = hex::encode(public_key.serialize().to_vec());
-
-        let message = &hex::encode(Sha256::digest(&self.to_bytes(true, true)));
-        self.signature = Message::sign(message, passphrase).signature;
-
+        self.sender_public_key = public_key.to_string();
+        self.signature = private_key::sign(&self.to_bytes(true, true), passphrase);
         self
     }
 
     pub fn second_sign(&mut self, passphrase: &str) -> &Self {
-        let message = &hex::encode(Sha256::digest(&self.to_bytes(false, true)));
-        self.sign_signature = Message::sign(message, passphrase).signature;
-
+        self.sign_signature = private_key::sign(&self.to_bytes(false, true), passphrase);
         self
     }
 
@@ -186,7 +181,7 @@ impl Transaction {
         let msg = secp256k1::Message::from_slice(&hash).unwrap();
 
         let secp = Secp256k1::new();
-        let sig = Signature::from_der(&secp, signature.as_bytes()).unwrap();
+        let sig = Signature::from_der(&secp, &hex::decode(signature).unwrap()).unwrap();
         let pk = public_key::from_hex(&self.sender_public_key).unwrap();
 
         secp.verify(&msg, &sig, &pk).is_ok()
