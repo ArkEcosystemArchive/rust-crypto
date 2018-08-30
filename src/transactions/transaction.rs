@@ -202,28 +202,3 @@ impl Transaction {
         serde_json::to_string(self)
     }
 }
-
-#[cfg(test)]
-mod tests {
-
-    use super::*;
-
-    #[test]
-    fn test_to_bytes() {
-        let mut transaction = Transaction::default();
-        transaction.type_id = Types::Vote;
-        transaction.timestamp = 39999;
-        transaction.sign("this is a top secret passphrase");
-
-        println!("{:?}", transaction.to_bytes(true, true));
-    }
-
-    #[test]
-    fn test_aaaa() {
-        let mut transaction = Transaction::default();
-        transaction.sign("this is a top secret passphrase");
-
-        println!("{:?}", transaction);
-    }
-
-}
