@@ -9,7 +9,6 @@ use std::iter;
 
 use enums::TransactionType;
 use identities::{private_key, public_key};
-use utils::message::Message;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -95,11 +94,19 @@ impl Transaction {
     }
 
     pub fn verify(&self) -> bool {
-        self.internal_verify(&self.sender_public_key, &self.signature, &self.to_bytes(true, true))
+        self.internal_verify(
+            &self.sender_public_key,
+            &self.signature,
+            &self.to_bytes(true, true),
+        )
     }
 
     pub fn second_verify(&self, sender_public_key: &str) -> bool {
-        self.internal_verify(&sender_public_key, &self.sign_signature, &self.to_bytes(false, true))
+        self.internal_verify(
+            &sender_public_key,
+            &self.sign_signature,
+            &self.to_bytes(false, true),
+        )
     }
 
     pub fn to_bytes(&self, skip_signature: bool, skip_second_signature: bool) -> Vec<u8> {

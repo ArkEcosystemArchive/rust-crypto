@@ -3,12 +3,12 @@ use arkecosystem_crypto::transactions::builder;
 
 #[test]
 fn test_signed_with_a_passphrase() {
-    let transaction = builder::build_vote(
+    let transaction = builder::build_transfer(
         "this is a top secret passphrase",
         None,
-        vec![String::from(
-            "+034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192",
-        )],
+        "AXoXnFi4z1Z6aFvjEYkDVCtBGW2PaRiM25",
+        133_380_000_000,
+        "This is a transaction from Elixir",
     );
 
     assert!(transaction.is_ok());
@@ -17,12 +17,12 @@ fn test_signed_with_a_passphrase() {
 
 #[test]
 fn test_signed_with_a_second_passphrase() {
-    let transaction = builder::build_vote(
+    let transaction = builder::build_transfer(
         "this is a top secret passphrase",
         Some("this is a top secret second passphrase"),
-        vec![String::from(
-            "+034151a3ec46b5670a682b0a63394f863587d1bc97483b1b6c70eb58e7f0aed192",
-        )],
+        "AXoXnFi4z1Z6aFvjEYkDVCtBGW2PaRiM25",
+        133_380_000_000,
+        "This is a transaction from Elixir",
     );
 
     let second_public_key = public_key::from_passphrase("this is a top secret second passphrase")
