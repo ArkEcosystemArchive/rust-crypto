@@ -19,6 +19,7 @@ pub struct Transaction {
     #[serde(rename = "type")]
     pub type_id: TransactionType,
     pub version: u8,
+    #[serde(skip_serializing_if = "Asset::is_none")]
     pub asset: Asset,
     #[serde(skip)]
     pub timelock_type: u32,
@@ -65,6 +66,15 @@ pub enum Asset {
         keysgroup: Vec<String>,
         lifetime: u8,
     },
+}
+
+impl Asset {
+    pub fn is_none(&self) -> bool {
+        match *self {
+            Asset::None => true,
+            _ => false,
+        }
+    }
 }
 
 impl Default for Asset {
