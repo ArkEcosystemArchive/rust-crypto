@@ -7,7 +7,7 @@
 > A simple Rust cryptography implementation for the Ark blockchain.
 
 [![Build Status](https://badgen.now.sh/travis/ArkEcosystem/rust-crypto/master)](https://travis-ci.org/ArkEcosystem/rust-crypto)
-[![Codecov](https://badgen.now.sh/codecov/c/github/arkecosystem/rust-crypto.svg)](https://codecov.io/gh/arkecosystem/rust-crypto)
+[![Codecov](https://badgen.now.sh/codecov/c/github/arkecosystem/rust-crypto)](https://codecov.io/gh/arkecosystem/rust-crypto)
 [![Latest Version](https://badgen.now.sh/github/release/ArkEcosystem/rust-crypto)](https://github.com/ArkEcosystem/rust-crypto/releases)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
