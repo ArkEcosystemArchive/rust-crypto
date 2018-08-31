@@ -31,7 +31,7 @@ impl Message {
         Message {
             public_key: hex::encode(&public_key.serialize()[..]),
             signature: private_key::sign(message.as_bytes(), passphrase),
-            message: "message".to_owned(),
+            message: message.to_owned(),
         }
     }
 
