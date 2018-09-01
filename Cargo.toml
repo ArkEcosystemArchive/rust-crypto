@@ -2,7 +2,7 @@
 name = "arkecosystem-crypto"
 version = "0.1.0"
 authors = ["Joshua Noack"]
-description = "A Rust cryptography implementation for the Ark Ecosystem"
+description = "A simple Cryptography Implementation in Rust for the ARK Blockchain."
 license = "MIT"
 
 [lib]
