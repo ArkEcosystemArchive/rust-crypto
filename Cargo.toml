@@ -5,4 +5,20 @@ authors = ["Juan A. Martín <dev@jaml.pro>"]
 description = "A Rust cryptography implementation for the Ark Ecosystem"
 license = "MIT"
 
+[lib]
+name = "arkecosystem_crypto"
+path = "src/lib.rs"
+
 [dependencies]
+bitcoin = "0.14.0"
+secp256k1 = "0.11"
+sha2 = "0.7.1"
+failure = "0.1.2"
+serde = "1.0.75"
+serde_json = "1.0.26"
+serde_derive = "1.0.75"
+lazy_static = "1.1.0"
+chrono = "0.4.6"
+hex = "0.3.2"
+ripemd160 = "0.7.0"
+byteorder = "1.2.6"
