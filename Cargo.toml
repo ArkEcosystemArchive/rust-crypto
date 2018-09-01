@@ -1,7 +1,7 @@
 [package]
 name = "arkecosystem-crypto"
-version = "0.0.1"
-authors = ["Juan A. Martín <dev@jaml.pro>"]
+version = "0.1.0"
+authors = ["Joshua Noack"]
 description = "A Rust cryptography implementation for the Ark Ecosystem"
 license = "MIT"
 
