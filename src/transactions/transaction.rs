@@ -127,7 +127,8 @@ impl Transaction {
 
         buffer.extend_from_slice(&hex::decode(&self.sender_public_key).unwrap());
 
-        let recipient_id = if self.recipient_id.len() > 0 {
+        let skip_recipient_id = self.type_id == TransactionType::SecondSignatureRegistration || self.type_id == TransactionType::MultiSignatureRegistration;
+        let recipient_id = if self.recipient_id.len() > 0 && !skip_recipient_id {
             base58::from_check(&self.recipient_id).unwrap()
         } else {
             iter::repeat(0).take(21).collect()

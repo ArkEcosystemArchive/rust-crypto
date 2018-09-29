@@ -39,6 +39,7 @@ fn test_signed_with_a_passphrase() {
         fixture["data"]["recipientId"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 
     let asset = fixture["data"]["asset"].clone();
     assert_eq!(transaction.asset, serde_json::from_value(asset).unwrap());
@@ -84,6 +85,7 @@ fn test_signed_with_a_second_passphrase() {
         fixture["data"]["recipientId"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 
     let asset = fixture["data"]["asset"].clone();
     assert_eq!(transaction.asset, serde_json::from_value(asset).unwrap());

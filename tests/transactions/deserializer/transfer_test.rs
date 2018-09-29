@@ -39,6 +39,7 @@ fn test_signed_with_a_passphrase() {
         fixture["data"]["signature"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 }
 
 #[test]
@@ -82,6 +83,7 @@ fn test_signed_with_a_second_passphrase() {
         fixture["data"]["signSignature"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 }
 
 #[test]
@@ -124,6 +126,7 @@ fn test_signed_with_a_passphrase_and_vendor_field() {
         fixture["data"]["vendorField"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 }
 
 #[test]
@@ -170,6 +173,7 @@ fn test_signed_with_a_second_passphrase_and_vendor_field() {
         fixture["data"]["vendorField"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 }
 
 #[test]
@@ -212,6 +216,7 @@ fn test_signed_with_a_passphrase_and_vendor_hex_field() {
         fixture["data"]["vendorFieldHex"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 }
 
 #[test]
@@ -258,4 +263,5 @@ fn test_signed_with_a_second_passphrase_and_vendor_hex_field() {
         fixture["data"]["vendorFieldHex"].as_str().unwrap()
     );
     assert_eq!(transaction.id, fixture["data"]["id"].as_str().unwrap());
+    assert_eq!(transaction.verify(), true);
 }
