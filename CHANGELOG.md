@@ -7,5 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased
 
+## 0.1.1
+
+### Fixed
+- Skip recipient id in `to_bytes` for type 1 and 4 transactions.
+
 ## 0.1.0 - 2018-09-03
 - Initial Release
