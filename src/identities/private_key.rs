@@ -5,13 +5,12 @@ use sha2::{Digest, Sha256};
 pub type PrivateKey = SecretKey;
 
 pub fn from_passphrase(passphrase: &str) -> Result<PrivateKey, Error> {
-    PrivateKey::from_slice(&Secp256k1::new(), &Sha256::digest_str(passphrase)[..])
+    PrivateKey::from_slice(&Sha256::digest(passphrase.as_bytes())[..])
 }
 
 pub fn from_hex(private_key: &str) -> Result<PrivateKey, Error> {
     // TODO: fix unwrap
     PrivateKey::from_slice(
-        &Secp256k1::new(),
         hex::decode(private_key).unwrap().as_slice(),
     )
 }
@@ -23,7 +22,7 @@ pub fn sign(bytes: &[u8], passphrase: &str) -> String {
     let secp = Secp256k1::new();
     let sig = secp.sign(&msg, &key);
 
-    hex::encode(sig.serialize_der(&secp))
+    hex::encode(sig.serialize_der())
 }
 
 #[cfg(test)]

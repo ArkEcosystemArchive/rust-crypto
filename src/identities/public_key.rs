@@ -11,7 +11,6 @@ pub fn from_passphrase(passphrase: &str) -> Result<PublicKey, Error> {
 pub fn from_hex(public_key: &str) -> Result<PublicKey, Error> {
     // TODO: fix unwrap
     PublicKey::from_slice(
-        &Secp256k1::new(),
         hex::decode(public_key).unwrap().as_slice(),
     )
 }

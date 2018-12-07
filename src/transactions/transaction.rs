@@ -199,9 +199,8 @@ impl Transaction {
         let msg = secp256k1::Message::from_slice(&hash).unwrap();
 
         let secp = Secp256k1::new();
-        let sig = Signature::from_der(&secp, &hex::decode(signature).unwrap()).unwrap();
+        let sig = Signature::from_der(&hex::decode(signature).unwrap()).unwrap();
         let pk = public_key::from_hex(&sender_public_key).unwrap();
-
         secp.verify(&msg, &sig, &pk).is_ok()
     }
 

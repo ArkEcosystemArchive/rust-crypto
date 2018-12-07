@@ -37,7 +37,7 @@ impl Message {
 
     // TODO: unwrap
     pub fn verify(&self) -> bool {
-        let hash = Sha256::digest_str(&self.message);
+        let hash = Sha256::digest(&self.message.as_bytes());
 
         let message = secp256k1::Message::from_slice(&hash);
         if message.is_err() {
@@ -50,7 +50,7 @@ impl Message {
         }
 
         let secp = Secp256k1::new();
-        let signature = Signature::from_der(&secp, &decoded.unwrap());
+        let signature = Signature::from_der(&decoded.unwrap());
         if signature.is_err() {
             return false;
         }
