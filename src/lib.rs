@@ -19,3 +19,9 @@ pub mod configuration;
 pub mod enums;
 pub mod identities;
 pub mod transactions;
+
+use secp256k1::{Secp256k1, All};
+
+lazy_static! {
+    pub static ref SECP256k1: Secp256k1<All> = Secp256k1::new();
+}

@@ -1,23 +1,23 @@
 use hex;
-use secp256k1::{Error, PublicKey, Secp256k1};
+use secp256k1::{Error, PublicKey};
 
 use super::private_key;
+use super::super::SECP256k1;
 
 pub fn from_passphrase(passphrase: &str) -> Result<PublicKey, Error> {
     let private_key = private_key::from_passphrase(passphrase)?;
-    Ok(PublicKey::from_secret_key(&Secp256k1::new(), &private_key))
+    Ok(PublicKey::from_secret_key(&SECP256k1, &private_key))
 }
 
 pub fn from_hex(public_key: &str) -> Result<PublicKey, Error> {
     // TODO: fix unwrap
     PublicKey::from_slice(
-        &Secp256k1::new(),
         hex::decode(public_key).unwrap().as_slice(),
     )
 }
 
 pub fn from_private_key(private_key: &private_key::PrivateKey) -> PublicKey {
-    PublicKey::from_secret_key(&Secp256k1::new(), private_key)
+    PublicKey::from_secret_key(&SECP256k1, private_key)
 }
 
 #[cfg(test)]

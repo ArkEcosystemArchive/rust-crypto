@@ -1,14 +1,15 @@
 use bitcoin::util::base58;
 use byteorder::{LittleEndian, WriteBytesExt};
 use hex;
-use secp256k1;
-use secp256k1::{Secp256k1, Signature};
+use secp256k1::{Signature};
 use serde_json;
 use sha2::{Digest, Sha256};
 use std::iter;
 
 use enums::TransactionType;
 use identities::{private_key, public_key};
+
+use super::super::SECP256k1;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -198,11 +199,9 @@ impl Transaction {
         let hash = Sha256::digest(&bytes);
         let msg = secp256k1::Message::from_slice(&hash).unwrap();
 
-        let secp = Secp256k1::new();
-        let sig = Signature::from_der(&secp, &hex::decode(signature).unwrap()).unwrap();
+        let sig = Signature::from_der(&hex::decode(signature).unwrap()).unwrap();
         let pk = public_key::from_hex(&sender_public_key).unwrap();
-
-        secp.verify(&msg, &sig, &pk).is_ok()
+        SECP256k1.verify(&msg, &sig, &pk).is_ok()
     }
 
     pub fn to_params(&self) -> Result<serde_json::Value, serde_json::Error> {

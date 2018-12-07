@@ -6,7 +6,8 @@ use super::super::configuration;
 pub fn from_passphrase(passphrase: &str) -> String {
     let mut bytes = vec![];
     bytes.push(configuration::network::get().wif());
-    bytes.extend_from_slice(&Sha256::digest_str(passphrase));
+
+    bytes.extend_from_slice(&Sha256::digest(&passphrase.as_bytes()));
     bytes.push(0x01);
 
     base58::check_encode_slice(&bytes)
