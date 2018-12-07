@@ -1,6 +1,7 @@
 use hex;
-use secp256k1::{Error, Message, Secp256k1, SecretKey};
+use secp256k1::{Error, Message, SecretKey};
 use sha2::{Digest, Sha256};
+use super::super::SECP256k1;
 
 pub type PrivateKey = SecretKey;
 
@@ -19,8 +20,7 @@ pub fn sign(bytes: &[u8], passphrase: &str) -> String {
     let key = from_passphrase(passphrase).unwrap();
     let hash = &Sha256::digest(&bytes);
     let msg = Message::from_slice(&hash).unwrap();
-    let secp = Secp256k1::new();
-    let sig = secp.sign(&msg, &key);
+    let sig = SECP256k1.sign(&msg, &key);
 
     hex::encode(sig.serialize_der())
 }

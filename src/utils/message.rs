@@ -1,11 +1,11 @@
 use hex;
-use secp256k1;
-use secp256k1::{Secp256k1, Signature};
+use secp256k1::{Signature};
 use serde_json;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 use super::super::identities::{private_key, public_key};
+use super::super::SECP256k1;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Message {
@@ -49,15 +49,13 @@ impl Message {
             return false;
         }
 
-        let secp = Secp256k1::new();
         let signature = Signature::from_der(&decoded.unwrap());
         if signature.is_err() {
             return false;
         }
 
         let pk = public_key::from_hex(&self.public_key).unwrap();
-        secp.verify(&message.unwrap(), &signature.unwrap(), &pk)
-            .is_ok()
+        SECP256k1.verify(&message.unwrap(), &signature.unwrap(), &pk).is_ok()
     }
 
     pub fn to_json(&self) -> Result<String, serde_json::Error> {
