@@ -1,5 +1,5 @@
 use hex;
-use secp256k1::{Signature};
+use secp256k1::Signature;
 use serde_json;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
@@ -55,7 +55,9 @@ impl Message {
         }
 
         let pk = public_key::from_hex(&self.public_key).unwrap();
-        SECP256k1.verify(&message.unwrap(), &signature.unwrap(), &pk).is_ok()
+        SECP256k1
+            .verify(&message.unwrap(), &signature.unwrap(), &pk)
+            .is_ok()
     }
 
     pub fn to_json(&self) -> Result<String, serde_json::Error> {

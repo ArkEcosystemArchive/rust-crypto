@@ -39,10 +39,8 @@ fn test_signed_with_a_second_passphrase() {
 
     assert!(transaction.is_ok());
     assert!(transaction.as_ref().unwrap().verify());
-    assert!(
-        transaction
-            .as_ref()
-            .unwrap()
-            .second_verify(&second_public_key)
-    );
+    assert!(transaction
+        .as_ref()
+        .unwrap()
+        .second_verify(&second_public_key));
 }

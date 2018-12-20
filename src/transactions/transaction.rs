@@ -1,7 +1,7 @@
 use bitcoin::util::base58;
 use byteorder::{LittleEndian, WriteBytesExt};
 use hex;
-use secp256k1::{Signature};
+use secp256k1::Signature;
 use serde_json;
 use sha2::{Digest, Sha256};
 use std::iter;
@@ -128,7 +128,8 @@ impl Transaction {
 
         buffer.extend_from_slice(&hex::decode(&self.sender_public_key).unwrap());
 
-        let skip_recipient_id = self.type_id == TransactionType::SecondSignatureRegistration || self.type_id == TransactionType::MultiSignatureRegistration;
+        let skip_recipient_id = self.type_id == TransactionType::SecondSignatureRegistration
+            || self.type_id == TransactionType::MultiSignatureRegistration;
         let recipient_id = if self.recipient_id.len() > 0 && !skip_recipient_id {
             base58::from_check(&self.recipient_id).unwrap()
         } else {
