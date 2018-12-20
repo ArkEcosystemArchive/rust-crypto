@@ -284,15 +284,15 @@ fn handle_version_one(transaction: &mut Transaction) {
         }
         TransactionType::MultiSignatureRegistration => {
             if let Asset::MultiSignatureRegistration {
-                ref mut keysgroup,
-                ..
-            } = transaction.asset {
+                ref mut keysgroup, ..
+            } = transaction.asset
+            {
                 let mut keysgroup = keysgroup.as_mut_slice();
                 for key in keysgroup {
                     *key = String::from("+") + key;
                 }
             }
-        },
+        }
         _ => (),
     }
 

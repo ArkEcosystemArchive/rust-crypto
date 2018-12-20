@@ -29,7 +29,9 @@ fn serialize_vendor_field(transaction: &Transaction, bytes: &mut Vec<u8>) {
     if !transaction.vendor_field.is_empty() {
         let vendor_field_length = transaction.vendor_field.len() as u8;
         bytes.write_u8(vendor_field_length).unwrap();
-        bytes.write_all(transaction.vendor_field.as_bytes()).unwrap();
+        bytes
+            .write_all(transaction.vendor_field.as_bytes())
+            .unwrap();
     } else if !transaction.vendor_field_hex.is_empty() {
         let vendor_field_hex_length = transaction.vendor_field_hex.len() / 2;
         bytes.write_u8(vendor_field_hex_length as u8).unwrap();
@@ -107,7 +109,8 @@ fn serialize_multi_signature_registration(transaction: &Transaction, bytes: &mut
         min,
         keysgroup,
         lifetime,
-    } = &transaction.asset {
+    } = &transaction.asset
+    {
         let keysgroup_string: String = keysgroup
             .iter()
             .map(|key| {
@@ -131,21 +134,22 @@ fn serialize_multi_signature_registration(transaction: &Transaction, bytes: &mut
 
 fn serialize_signatures(transaction: &Transaction, bytes: &mut Vec<u8>) {
     if !transaction.signature.is_empty() {
-        let signature_bytes = hex::decode(&transaction.signature).unwrap();
-        bytes.write_all(&signature_bytes).unwrap();
+        write_decoded_hex(&transaction.signature, bytes);
     }
 
     if !transaction.second_signature.is_empty() {
-        let second_signature_bytes = hex::decode(&transaction.second_signature).unwrap();
-        bytes.write_all(&second_signature_bytes).unwrap();
+        write_decoded_hex(&transaction.second_signature, bytes);
     } else if !transaction.sign_signature.is_empty() {
-        let sign_signature_bytes = hex::decode(&transaction.sign_signature).unwrap();
-        bytes.write_all(&sign_signature_bytes).unwrap();
+        write_decoded_hex(&transaction.sign_signature, bytes);
     }
 
     if !transaction.signatures.is_empty() {
         bytes.write_u8(0xff).unwrap();
-        let signatures_bytes = hex::decode(&transaction.signatures.join("")).unwrap();
-        bytes.write_all(&signatures_bytes).unwrap();
+        write_decoded_hex(&transaction.signatures.join(""), bytes);
     }
+}
+
+fn write_decoded_hex(signature: &str, bytes: &mut Vec<u8>) {
+    let signatures_bytes = hex::decode(&signature).unwrap();
+    bytes.write_all(&signatures_bytes).unwrap();
 }
