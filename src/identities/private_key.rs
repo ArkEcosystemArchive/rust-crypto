@@ -1,7 +1,7 @@
+use super::super::SECP256k1;
 use hex;
 use secp256k1::{Error, Message, SecretKey};
 use sha2::{Digest, Sha256};
-use super::super::SECP256k1;
 
 pub type PrivateKey = SecretKey;
 
@@ -11,9 +11,7 @@ pub fn from_passphrase(passphrase: &str) -> Result<PrivateKey, Error> {
 
 pub fn from_hex(private_key: &str) -> Result<PrivateKey, Error> {
     // TODO: fix unwrap
-    PrivateKey::from_slice(
-        hex::decode(private_key).unwrap().as_slice(),
-    )
+    PrivateKey::from_slice(hex::decode(private_key).unwrap().as_slice())
 }
 
 pub fn sign(bytes: &[u8], passphrase: &str) -> String {
