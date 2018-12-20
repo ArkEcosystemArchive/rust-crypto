@@ -123,14 +123,14 @@ impl Transaction {
     pub fn to_bytes(&self, skip_signature: bool, skip_second_signature: bool) -> Vec<u8> {
         let mut buffer = vec![];
 
-        buffer.write_u8(self.type_id.clone() as u8).unwrap();
+        buffer.write_u8(self.type_id as u8).unwrap();
         buffer.write_u32::<LittleEndian>(self.timestamp).unwrap();
 
         buffer.extend_from_slice(&hex::decode(&self.sender_public_key).unwrap());
 
         let skip_recipient_id = self.type_id == TransactionType::SecondSignatureRegistration
             || self.type_id == TransactionType::MultiSignatureRegistration;
-        let recipient_id = if self.recipient_id.len() > 0 && !skip_recipient_id {
+        let recipient_id = if !self.recipient_id.is_empty() && !skip_recipient_id {
             base58::from_check(&self.recipient_id).unwrap()
         } else {
             iter::repeat(0).take(21).collect()
@@ -138,7 +138,7 @@ impl Transaction {
 
         buffer.extend_from_slice(&recipient_id);
 
-        let vendor_field: Vec<u8> = if self.vendor_field.len() > 0 {
+        let vendor_field: Vec<u8> = if !self.vendor_field.is_empty() {
             let vendor_bytes = self.vendor_field.as_bytes();
             if vendor_bytes.len() <= 64 {
                 vendor_bytes
@@ -162,11 +162,11 @@ impl Transaction {
         buffer.write_u64::<LittleEndian>(self.fee).unwrap();
 
         // Payload
-        let payload: Vec<u8> = match &self.asset {
-            &Asset::Signature { ref public_key } => hex::decode(&public_key).unwrap(),
-            &Asset::Delegate { ref username } => username.to_owned().as_bytes().to_vec(),
-            &Asset::Votes(ref votes) => votes.join("").as_bytes().to_vec(),
-            &Asset::MultiSignatureRegistration {
+        let payload: Vec<u8> = match self.asset {
+            Asset::Signature { ref public_key } => hex::decode(&public_key).unwrap(),
+            Asset::Delegate { ref username } => username.to_owned().as_bytes().to_vec(),
+            Asset::Votes(ref votes) => votes.join("").as_bytes().to_vec(),
+            Asset::MultiSignatureRegistration {
                 min,
                 lifetime,
                 ref keysgroup,
@@ -184,12 +184,12 @@ impl Transaction {
         buffer.extend_from_slice(&payload);
 
         // Signature
-        if !skip_signature && self.signature.len() > 0 {
+        if !skip_signature && !self.signature.is_empty() {
             buffer.extend_from_slice(&hex::decode(&self.signature).unwrap());
         }
 
         // Second Signature
-        if !skip_second_signature && self.second_signature.len() > 0 {
+        if !skip_second_signature && !self.second_signature.is_empty() {
             buffer.extend_from_slice(&hex::decode(&self.second_signature).unwrap());
         }
 

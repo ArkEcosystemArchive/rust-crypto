@@ -15,7 +15,7 @@ pub fn serialize(transaction: &Transaction) -> String {
     bytes.write_u8(if transaction.network > 0 { transaction.network } else { network::get().version() }).unwrap();
     bytes.write_u8(transaction.type_id as u8).unwrap();
     bytes.write_u32::<LittleEndian>(transaction.timestamp).unwrap();
-    bytes.write(&hex::decode(&transaction.sender_public_key).unwrap()).unwrap();
+    bytes.write_all(&hex::decode(&transaction.sender_public_key).unwrap()).unwrap();
     bytes.write_u64::<LittleEndian>(transaction.fee).unwrap();
 
     serialize_vendor_field(transaction, &mut bytes);
@@ -26,15 +26,15 @@ pub fn serialize(transaction: &Transaction) -> String {
 }
 
 fn serialize_vendor_field(transaction: &Transaction, bytes: &mut Vec<u8>) {
-    if transaction.vendor_field.len() > 0 {
+    if !transaction.vendor_field.is_empty() {
         let vendor_field_length = transaction.vendor_field.len() as u8;
         bytes.write_u8(vendor_field_length).unwrap();
-        bytes.write(transaction.vendor_field.as_bytes()).unwrap();
-    } else if transaction.vendor_field_hex.len() > 0 {
+        bytes.write_all(transaction.vendor_field.as_bytes()).unwrap();
+    } else if !transaction.vendor_field_hex.is_empty() {
         let vendor_field_hex_length = transaction.vendor_field_hex.len() / 2;
         bytes.write_u8(vendor_field_hex_length as u8).unwrap();
         bytes
-            .write(transaction.vendor_field_hex.as_bytes())
+            .write_all(transaction.vendor_field_hex.as_bytes())
             .unwrap();
     } else {
         bytes.write_u8(0x00).unwrap();
@@ -68,96 +68,84 @@ fn serialize_transfer(transaction: &Transaction, bytes: &mut Vec<u8>) {
         .unwrap();
 
     let recipient_id = base58::from_check(&transaction.recipient_id).unwrap();
-    bytes.write(&recipient_id).unwrap();
+    bytes.write_all(&recipient_id).unwrap();
 }
 
 fn serialize_second_signature_registration(transaction: &Transaction, bytes: &mut Vec<u8>) {
-    match &transaction.asset {
-        Asset::Signature { public_key } => {
-            let public_key_bytes = hex::decode(public_key).unwrap();
-            bytes.write(&public_key_bytes).unwrap();
-        }
-        _ => (),
+    if let Asset::Signature { public_key } = &transaction.asset {
+        let public_key_bytes = hex::decode(public_key).unwrap();
+        bytes.write_all(&public_key_bytes).unwrap();
     }
 }
 
 fn serialize_delegate_registration(transaction: &Transaction, bytes: &mut Vec<u8>) {
-    match &transaction.asset {
-        Asset::Delegate { username } => {
-            bytes.write_u8(username.len() as u8).unwrap();
-            bytes.write(&username.as_bytes()).unwrap();
-        }
-        _ => (),
+    if let Asset::Delegate { username } = &transaction.asset {
+        bytes.write_u8(username.len() as u8).unwrap();
+        bytes.write_all(&username.as_bytes()).unwrap();
     }
 }
 
 fn serialize_vote(transaction: &Transaction, bytes: &mut Vec<u8>) {
-    match &transaction.asset {
-        Asset::Votes(votes) => {
-            let mut vote_bytes = vec![];
+    if let Asset::Votes(votes) = &transaction.asset {
+        let mut vote_bytes = vec![];
 
-            for vote in votes {
-                let prefix = if vote.starts_with("+") { "01" } else { "00" };
-                let _vote: String = vote.chars().skip(1).collect();
-                vote_bytes.push(format!("{}{}", prefix, _vote));
-            }
-
-            bytes.write_u8(votes.len() as u8).unwrap();
-            bytes
-                .write(&hex::decode(&vote_bytes.join("")).unwrap())
-                .unwrap();
+        for vote in votes {
+            let prefix = if vote.starts_with('+') { "01" } else { "00" };
+            let _vote: String = vote.chars().skip(1).collect();
+            vote_bytes.push(format!("{}{}", prefix, _vote));
         }
-        _ => (),
+
+        bytes.write_u8(votes.len() as u8).unwrap();
+        bytes
+            .write_all(&hex::decode(&vote_bytes.join("")).unwrap())
+            .unwrap();
     }
 }
 
 fn serialize_multi_signature_registration(transaction: &Transaction, bytes: &mut Vec<u8>) {
-    match &transaction.asset {
-        Asset::MultiSignatureRegistration {
-            min,
-            keysgroup,
-            lifetime,
-        } => {
-            let keysgroup_string: String = keysgroup
-                .iter()
-                .map(|key| {
-                    if key.starts_with("+") {
-                        key.chars().skip(1).collect::<String>()
-                    } else {
-                        key.to_owned()
-                    }
-                })
-                .collect();
+    if let Asset::MultiSignatureRegistration {
+        min,
+        keysgroup,
+        lifetime,
+    } = &transaction.asset {
+        let keysgroup_string: String = keysgroup
+            .iter()
+            .map(|key| {
+                if key.starts_with('+') {
+                    key.chars().skip(1).collect::<String>()
+                } else {
+                    key.to_owned()
+                }
+            })
+            .collect();
 
-            bytes.write_u8(*min).unwrap();
-            bytes.write_u8(keysgroup.len() as u8).unwrap();
-            bytes.write_u8(*lifetime).unwrap();
+        bytes.write_u8(*min).unwrap();
+        bytes.write_u8(keysgroup.len() as u8).unwrap();
+        bytes.write_u8(*lifetime).unwrap();
 
-            bytes
-                .write(&hex::decode(keysgroup_string).unwrap())
-                .unwrap();
-        }
-        _ => (),
+        bytes
+            .write_all(&hex::decode(keysgroup_string).unwrap())
+            .unwrap();
     }
 }
 
 fn serialize_signatures(transaction: &Transaction, bytes: &mut Vec<u8>) {
-    if transaction.signature.len() > 0 {
+    if !transaction.signature.is_empty() {
         let signature_bytes = hex::decode(&transaction.signature).unwrap();
-        bytes.write(&signature_bytes).unwrap();
+        bytes.write_all(&signature_bytes).unwrap();
     }
 
-    if transaction.second_signature.len() > 0 {
+    if !transaction.second_signature.is_empty() {
         let second_signature_bytes = hex::decode(&transaction.second_signature).unwrap();
-        bytes.write(&second_signature_bytes).unwrap();
-    } else if transaction.sign_signature.len() > 0 {
+        bytes.write_all(&second_signature_bytes).unwrap();
+    } else if !transaction.sign_signature.is_empty() {
         let sign_signature_bytes = hex::decode(&transaction.sign_signature).unwrap();
-        bytes.write(&sign_signature_bytes).unwrap();
+        bytes.write_all(&sign_signature_bytes).unwrap();
     }
 
-    if transaction.signatures.len() > 0 {
+    if !transaction.signatures.is_empty() {
         bytes.write_u8(0xff).unwrap();
         let signatures_bytes = hex::decode(&transaction.signatures.join("")).unwrap();
-        bytes.write(&signatures_bytes).unwrap();
+        bytes.write_all(&signatures_bytes).unwrap();
     }
 }

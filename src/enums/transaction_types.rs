@@ -13,7 +13,7 @@ enum_number!(TransactionType {
 });
 
 impl TransactionType {
-    pub fn fee(&self) -> u64 {
+    pub fn fee(self) -> u64 {
         match self {
             TransactionType::Transfer => 10_000_000,
             TransactionType::SecondSignatureRegistration => 500_000_000,

@@ -34,14 +34,14 @@ fn deserialize_header(bytes: &mut Cursor<&[u8]>, transaction: &mut Transaction) 
     transaction.timestamp = bytes.read_u32::<LittleEndian>().unwrap();
 
     let mut sender_public_key_buf = [0; 33];
-    bytes.read(&mut sender_public_key_buf).unwrap();
+    bytes.read_exact(&mut sender_public_key_buf).unwrap();
     transaction.sender_public_key = hex::encode(sender_public_key_buf.to_vec());
     transaction.fee = bytes.read_u64::<LittleEndian>().unwrap();
 
     let vendor_field_length = bytes.read_u8().unwrap() as usize;
     if vendor_field_length > 0 {
         let mut vendor_field_buf: Vec<u8> = vec![0; vendor_field_length];
-        bytes.read(&mut vendor_field_buf).unwrap();
+        bytes.read_exact(&mut vendor_field_buf).unwrap();
         transaction.vendor_field_hex = hex::encode(&vendor_field_buf);
     }
 
@@ -54,8 +54,7 @@ fn deserialize_type(
     serialized: &str,
     mut asset_offset: &mut usize,
 ) {
-    let type_id = transaction.type_id.clone();
-    match type_id {
+    match transaction.type_id {
         TransactionType::Transfer => {
             deserialize_transfer(bytes, &mut transaction, &mut asset_offset)
         }
@@ -97,7 +96,7 @@ fn deserialize_transfer(
     transaction.expiration = bytes.read_u32::<LittleEndian>().unwrap();
 
     let mut recipient_id_buf = [0; 21];
-    bytes.read(&mut recipient_id_buf).unwrap();
+    bytes.read_exact(&mut recipient_id_buf).unwrap();
     transaction.recipient_id = base58::check_encode_slice(&recipient_id_buf);
 
     *asset_offset += (21 + 12) * 2;
@@ -184,7 +183,7 @@ fn deserialize_multi_signature_registration(
     let mut keysgroup = Vec::with_capacity(number_of_signatures);
     for _ in 0..number_of_signatures {
         let mut public_key_buf = [0; 33];
-        bytes.read(&mut public_key_buf).unwrap();
+        bytes.read_exact(&mut public_key_buf).unwrap();
         keysgroup.push(hex::encode(public_key_buf.to_vec()))
     }
 
@@ -201,7 +200,7 @@ fn parse_signatures(transaction: &mut Transaction, serialized: &str, asset_offse
     let signature: String = serialized.chars().skip(asset_offset).collect();
     let mut multi_signature_offset = 0;
 
-    if signature.len() > 0 {
+    if !signature.is_empty() {
         let signature_length_str: String = signature.chars().skip(2).take(2).collect();
         let signature_length =
             (u8::from_str_radix(&signature_length_str, 16).unwrap() + 2) as usize;
@@ -219,7 +218,7 @@ fn parse_signatures(transaction: &mut Transaction, serialized: &str, asset_offse
             .skip(asset_offset + signature_length * 2)
             .collect();
 
-        if second_signature.len() > 0 && !second_signature.starts_with("ff") {
+        if !second_signature.is_empty() && !second_signature.starts_with("ff") {
             let second_signature_length_str: String =
                 second_signature.chars().skip(2).take(2).collect();
             let second_signature_length =
@@ -273,7 +272,7 @@ fn parse_signatures(transaction: &mut Transaction, serialized: &str, asset_offse
 }
 
 fn handle_version_one(transaction: &mut Transaction) {
-    if transaction.second_signature.len() > 0 {
+    if !transaction.second_signature.is_empty() {
         transaction.sign_signature = transaction.second_signature.to_owned();
     }
 
@@ -283,23 +282,21 @@ fn handle_version_one(transaction: &mut Transaction) {
             transaction.recipient_id =
                 address::from_public_key(&public_key, Some(transaction.network));
         }
-        TransactionType::MultiSignatureRegistration => match &mut transaction.asset {
-            &mut Asset::MultiSignatureRegistration {
-                min: _,
-                lifetime: _,
+        TransactionType::MultiSignatureRegistration => {
+            if let Asset::MultiSignatureRegistration {
                 ref mut keysgroup,
-            } => {
+                ..
+            } = transaction.asset {
                 let mut keysgroup = keysgroup.as_mut_slice();
                 for key in keysgroup {
                     *key = String::from("+") + key;
                 }
             }
-            _ => (),
         },
         _ => (),
     }
 
-    if transaction.vendor_field_hex.len() > 0 {
+    if !transaction.vendor_field_hex.is_empty() {
         transaction.vendor_field = utils::str_from_hex(&transaction.vendor_field_hex).unwrap();
     }
 
