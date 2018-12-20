@@ -7,15 +7,30 @@ use configuration::network;
 use enums::TransactionType;
 use transactions::transaction::{Asset, Transaction};
 
-#[cfg_attr(rustfmt, rustfmt_skip)]
 pub fn serialize(transaction: &Transaction) -> String {
     let mut bytes = vec![];
     bytes.write_u8(0xff).unwrap();
-    bytes.write_u8(if transaction.version > 0 { transaction.version } else { 0x01 }).unwrap();
-    bytes.write_u8(if transaction.network > 0 { transaction.network } else { network::get().version() }).unwrap();
+    bytes
+        .write_u8(if transaction.version > 0 {
+            transaction.version
+        } else {
+            0x01
+        })
+        .unwrap();
+    bytes
+        .write_u8(if transaction.network > 0 {
+            transaction.network
+        } else {
+            network::get().version()
+        })
+        .unwrap();
     bytes.write_u8(transaction.type_id as u8).unwrap();
-    bytes.write_u32::<LittleEndian>(transaction.timestamp).unwrap();
-    bytes.write_all(&hex::decode(&transaction.sender_public_key).unwrap()).unwrap();
+    bytes
+        .write_u32::<LittleEndian>(transaction.timestamp)
+        .unwrap();
+    bytes
+        .write_all(&hex::decode(&transaction.sender_public_key).unwrap())
+        .unwrap();
     bytes.write_u64::<LittleEndian>(transaction.fee).unwrap();
 
     serialize_vendor_field(transaction, &mut bytes);
