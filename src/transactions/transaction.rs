@@ -202,7 +202,7 @@ impl Transaction {
 
         let sig = Signature::from_der(&hex::decode(signature).unwrap()).unwrap();
         let pk = public_key::from_hex(&sender_public_key).unwrap();
-        SECP256k1.verify(&msg, &sig, &pk).is_ok()
+        SECP256K1.verify(&msg, &sig, &pk).is_ok()
     }
 
     pub fn to_params(&self) -> Result<serde_json::Value, serde_json::Error> {

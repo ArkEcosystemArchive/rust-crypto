@@ -18,7 +18,7 @@ pub fn sign(bytes: &[u8], passphrase: &str) -> String {
     let key = from_passphrase(passphrase).unwrap();
     let hash = &Sha256::digest(&bytes);
     let msg = Message::from_slice(&hash).unwrap();
-    let sig = SECP256k1.sign(&msg, &key);
+    let sig = SECP256K1.sign(&msg, &key);
 
     hex::encode(sig.serialize_der())
 }
