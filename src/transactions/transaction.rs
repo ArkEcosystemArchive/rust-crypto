@@ -9,7 +9,7 @@ use std::iter;
 use enums::TransactionType;
 use identities::{private_key, public_key};
 
-use super::super::SECP256k1;
+use super::super::SECP256K1;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]

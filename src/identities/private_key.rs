@@ -1,4 +1,4 @@
-use super::super::SECP256k1;
+use super::super::SECP256K1;
 use hex;
 use secp256k1::{Error, Message, SecretKey};
 use sha2::{Digest, Sha256};

@@ -5,7 +5,7 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 use super::super::identities::{private_key, public_key};
-use super::super::SECP256k1;
+use super::super::SECP256K1;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Message {
@@ -55,7 +55,7 @@ impl Message {
         }
 
         let pk = public_key::from_hex(&self.public_key).unwrap();
-        SECP256k1
+        SECP256K1
             .verify(&message.unwrap(), &signature.unwrap(), &pk)
             .is_ok()
     }
