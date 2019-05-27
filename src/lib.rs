@@ -23,5 +23,5 @@ pub mod transactions;
 use secp256k1::{All, Secp256k1};
 
 lazy_static! {
-    pub static ref SECP256k1: Secp256k1<All> = Secp256k1::new();
+    pub static ref SECP256K1: Secp256k1<All> = Secp256k1::new();
 }
