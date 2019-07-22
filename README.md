@@ -11,6 +11,8 @@
 [![Latest Version](https://badgen.now.sh/github/release/ArkEcosystem/rust-crypto)](https://github.com/ArkEcosystem/rust-crypto/releases)
 [![License: MIT](https://badgen.now.sh/badge/license/MIT/green)](https://opensource.org/licenses/MIT)
 
+> Lead Maintainer: [Joshua Noack](https://github.com/supaiku0)
+
 ## Documentation
 
 You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/sdk/cryptography/rust.html).
@@ -21,9 +23,8 @@ If you discover a security vulnerability within this package, please send an e-m
 
 ## Credits
 
-- [Joshua Noack](https://github.com/supaiku0)
-- [All Contributors](../../contributors)
+This project exists thanks to all the people who [contribute](../../contributors).
 
 ## License
 
-[MIT](LICENSE) © [ArkEcosystem](https://ark.io)
+[MIT](LICENSE) © [ARK Ecosystem](https://ark.io)
