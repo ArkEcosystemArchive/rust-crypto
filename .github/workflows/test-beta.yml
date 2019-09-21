@@ -1,0 +1,19 @@
+name: Test - Beta
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Update
+      run: rustup update --verbose
+    - name: Install beta
+      run: rustup install beta --verbose
+    - name: Build
+      run: rustup run beta cargo build --verbose
+    - name: Run tests
+      run: rustup run beta cargo test --verbose
