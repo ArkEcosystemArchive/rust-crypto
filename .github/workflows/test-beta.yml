@@ -10,9 +10,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Update
-      run: rustup update --verbose
+      run: rustup update
     - name: Install beta
-      run: rustup install beta --verbose
+      run: rustup install beta
     - name: Build
       run: rustup run beta cargo build --verbose
     - name: Run tests
