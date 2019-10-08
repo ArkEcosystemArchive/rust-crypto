@@ -3,48 +3,58 @@ name: Lint
 on:
     push:
         branches:
-            - '**'
+            - "*"
+            - "*/*"
     pull_request:
-        types: [opened]
+        types: [ready_for_review, synchronize, opened]
 
 jobs:
-  beta:
-    runs-on: ubuntu-latest
+    beta:
+        runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v1
-    - name: Update
-      run: rustup update
-    - name: Install beta
-      run: rustup install beta
-    - name: Build
-      run: rustup run beta cargo build --verbose
-    - name: Clippy
-      run: |
-        rustup component add --toolchain beta clippy
-        rustup run beta cargo clippy --all-targets --all-features -- -D warnings
-    - name: rustfmt
-      run: |
-        rustup component add --toolchain beta rustfmt
-        rustup run beta cargo fmt -- --check
+        steps:
+            - uses: actions/checkout@v1
 
-  stable:
-    runs-on: ubuntu-latest
+            - name: Update
+              run: rustup update
 
-    steps:
-    - uses: actions/checkout@v1
-    - name: Clean
-      run: cargo clean --verbose
-    - name: Build
-      run: cargo build --verbose
-    - name: Clippy
-      run: |
-        rustup update
-        rustup install stable
-        # Clippy is no longer available via crates.io
-        rustup component add --toolchain stable clippy
-        rustup run stable cargo clippy --all-targets --all-features -- -D warnings
-    - name: rustfmt
-      run: |
-        rustup component add --toolchain stable rustfmt
-        rustup run stable cargo fmt -- --check
+            - name: Install beta
+              run: rustup install beta
+
+            - name: Build
+              run: rustup run beta cargo build --verbose
+
+            - name: Clippy
+              run: |
+                  rustup component add --toolchain beta clippy
+                  rustup run beta cargo clippy --all-targets --all-features -- -D warnings
+
+            - name: rustfmt
+              run: |
+                  rustup component add --toolchain beta rustfmt
+                  rustup run beta cargo fmt -- --check
+
+    stable:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v1
+
+            - name: Clean
+              run: cargo clean --verbose
+
+            - name: Build
+              run: cargo build --verbose
+
+            - name: Clippy
+              run: |
+                  rustup update
+                  rustup install stable
+                  # Clippy is no longer available via crates.io
+                  rustup component add --toolchain stable clippy
+                  rustup run stable cargo clippy --all-targets --all-features -- -D warnings
+
+            - name: rustfmt
+              run: |
+                  rustup component add --toolchain stable rustfmt
+                  rustup run stable cargo fmt -- --check
