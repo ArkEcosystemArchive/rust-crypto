@@ -41,8 +41,8 @@ pub fn validate(address: &str, network_version: Option<u8>) -> bool {
     };
 
     let bytes = base58::from_check(address);
-    if bytes.is_ok() {
-        return *bytes.unwrap().first().unwrap() == network_version;
+    if let Ok(value) = bytes {
+        return *value.first().unwrap() == network_version;
     }
 
     false
