@@ -89,5 +89,4 @@ mod tests {
         let sig = Message::sign("Hello World", "this is a top secret passphrase");
         assert_eq!(sig.signature, "304402200fb4adddd1f1d652b544ea6ab62828a0a65b712ed447e2538db0caebfa68929e02205ecb2e1c63b29879c2ecf1255db506d671c8b3fa6017f67cfd1bf07e6edd1cc8");
     }
-
 }
