@@ -93,8 +93,8 @@ fn sign(
     transaction.timestamp = slot::get_time();
     transaction.sign(passphrase);
 
-    if second_passphrase.is_some() {
-        transaction.second_sign(second_passphrase.unwrap());
+    if let Some(value) = second_passphrase {
+        transaction.second_sign(value);
     }
 
     transaction.id = transaction.get_id();

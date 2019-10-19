@@ -47,5 +47,4 @@ mod tests {
         set(TransactionType::Vote, 0);
         assert_eq!(get(TransactionType::Vote), 0);
     }
-
 }
