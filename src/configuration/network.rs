@@ -2,7 +2,7 @@ use enums::networks::Network;
 use std::sync::Mutex;
 
 lazy_static! {
-    static ref NETWORK: Mutex<Network> = { Mutex::new(Network::Mainnet) };
+    static ref NETWORK: Mutex<Network> = Mutex::new(Network::Mainnet);
 }
 
 pub fn set(network: Network) {
