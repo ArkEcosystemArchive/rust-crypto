@@ -61,7 +61,7 @@ mod test {
             Some(Network::Devnet.version()),
         );
         assert_eq!(
-            private_key.unwrap().to_string(),
+            private_key.unwrap(),
             "D61mfSggzbvQgTUe6JhYKH2doHaqJ3Dyib"
         );
     }
